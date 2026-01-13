@@ -4,8 +4,1052 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home Field Preparatory School - Fees Collection System</title>
-    <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: #4fc3f7;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .tagline {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-top: 5px;
+            margin-left: 55px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar i {
+            font-size: 2.5rem;
+            color: #e3f2fd;
+        }
+
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .username {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .role {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 1rem 0;
+            flex: 1;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #555;
+            text-decoration: none;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: #f0f7ff;
+            color: #1a237e;
+        }
+
+        .nav-item.active {
+            background-color: #e8f4fe;
+            color: #1a237e;
+            border-left-color: #2196f3;
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .system-status {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            background: #f9f9f9;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.online {
+            background-color: #4caf50;
+            box-shadow: 0 0 5px #4caf50;
+        }
+
+        .current-date {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Content Area Styles */
+        .content-area {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            background: #f9fafc;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .page-title {
+            color: #1a237e;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.8rem;
+        }
+
+        .page-title i {
+            color: #2196f3;
+        }
+
+        /* Dashboard Styles */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .total-students .stat-icon {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .today-collection .stat-icon {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .total-collected .stat-icon {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .outstanding .stat-icon {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .quick-actions {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1.5rem;
+            color: #1a237e;
+            font-size: 1.3rem;
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .action-btn {
+            background: #f5f7fa;
+            border: 2px dashed #c5cae9;
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #5c6bc0;
+            font-weight: 500;
+        }
+
+        .action-btn:hover {
+            background: #e8eaf6;
+            border-color: #7986cb;
+            transform: translateY(-2px);
+        }
+
+        .action-btn i {
+            font-size: 1.2rem;
+        }
+
+        .recent-payments, .class-distribution {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .recent-payments h3, .class-distribution h3 {
+            margin-bottom: 1.5rem;
+            color: #1a237e;
+            font-size: 1.3rem;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        thead {
+            background: #f5f7fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            color: #444;
+        }
+
+        tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        /* Button Styles */
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: #2196f3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976d2;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #616161;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .btn-lg {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .form-container h3 {
+            color: #1a237e;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .form-group input, .form-group select {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.1);
+        }
+
+        .form-group small {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 2.5rem 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        /* Page Controls */
+        .page-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            align-items: center;
+        }
+
+        .page-controls .search-box {
+            flex: 1;
+            max-width: 400px;
+        }
+
+        /* Summary Cards */
+        .summary-controls, .report-filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .daily-summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: transform 0.3s;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .summary-card.total-collected {
+            border-left: 4px solid #4caf50;
+        }
+
+        .summary-card.students-paid {
+            border-left: 4px solid #2196f3;
+        }
+
+        .summary-card.students-unpaid {
+            border-left: 4px solid #ff9800;
+        }
+
+        .summary-card.outstanding-balance {
+            border-left: 4px solid #f44336;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .total-collected .card-icon {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .students-paid .card-icon {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .students-unpaid .card-icon {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .outstanding-balance .card-icon {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .card-content h3 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .card-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .card-subtitle {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        /* Tabs */
+        .summary-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            color: #2196f3;
+            background: #f5f7fa;
+        }
+
+        .tab-btn.active {
+            color: #2196f3;
+            border-bottom-color: #2196f3;
+            background: #f0f7ff;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .detailed-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Payment Page */
+        .payment-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .payment-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .students-list {
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+        }
+
+        .student-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .student-item:hover {
+            background: #f0f7ff;
+        }
+
+        .student-item.active {
+            background: #e3f2fd;
+            border-left: 3px solid #2196f3;
+        }
+
+        .student-info-card {
+            background: #f5f7fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #2196f3;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #ddd;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .fee-summary {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            border: 1px solid #e0e0e0;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+        }
+
+        .summary-row.total {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #1a237e;
+            border-top: 2px solid #ddd;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+
+        .success-message {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .success-message i {
+            font-size: 4rem;
+            color: #4caf50;
+            margin-bottom: 1.5rem;
+        }
+
+        .receipt-info {
+            background: #f5f7fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+                padding: 1rem;
+            }
+
+            .logo-container {
+                align-items: center;
+            }
+
+            .tagline {
+                margin-left: 0;
+            }
+
+            .main-content {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                padding: 0.5rem;
+            }
+
+            .nav-item {
+                flex-direction: column;
+                text-align: center;
+                padding: 0.8rem;
+                min-width: 100px;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+            }
+
+            .nav-item.active {
+                border-left: none;
+                border-bottom-color: #2196f3;
+            }
+
+            .content-area {
+                padding: 1rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .page-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .page-controls .search-box {
+                max-width: none;
+            }
+        }
+
+        /* Loading States */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #888;
+        }
+
+        .loading:before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #2196f3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Info Box */
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box i {
+            color: #2196f3;
+            font-size: 1.2rem;
+        }
+
+        /* Report Type Selector */
+        .report-type-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .report-type {
+            background: white;
+            padding: 1.5rem 1rem;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .report-type:hover {
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        .report-type.active {
+            border-color: #2196f3;
+            background: #f0f7ff;
+        }
+
+        .report-type i {
+            font-size: 1.5rem;
+            color: #2196f3;
+        }
+
+        .empty-report {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+        }
+
+        .empty-report i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #e0e0e0;
+        }
+
+        /* Print Styles */
+        @media print {
+            .header, .sidebar, .page-controls, .btn, .modal {
+                display: none !important;
+            }
+
+            .content-area {
+                padding: 0;
+            }
+
+            .page {
+                display: block !important;
+            }
+
+            .stat-card, .summary-card, .form-container, .detailed-summary {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -37,31 +1081,31 @@
             <!-- Sidebar -->
             <nav class="sidebar">
                 <ul class="nav-menu">
-                    <li class="nav-item active" data-page="dashboard">
+                    <li class="nav-item active" data-page="dashboard" onclick="loadPage('dashboard')">
                         <i class="fas fa-tachometer-alt"></i>
                         <span>Dashboard</span>
                     </li>
-                    <li class="nav-item" data-page="students">
+                    <li class="nav-item" data-page="students" onclick="loadPage('students')">
                         <i class="fas fa-users"></i>
                         <span>Student Management</span>
                     </li>
-                    <li class="nav-item" data-page="fees">
+                    <li class="nav-item" data-page="fees" onclick="loadPage('fees')">
                         <i class="fas fa-money-bill-wave"></i>
                         <span>Fees Setup</span>
                     </li>
-                    <li class="nav-item" data-page="payments">
+                    <li class="nav-item" data-page="payments" onclick="loadPage('payments')">
                         <i class="fas fa-credit-card"></i>
                         <span>Collect Fees</span>
                     </li>
-                    <li class="nav-item" data-page="receipts">
+                    <li class="nav-item" data-page="receipts" onclick="loadPage('receipts')">
                         <i class="fas fa-receipt"></i>
                         <span>Receipts</span>
                     </li>
-                    <li class="nav-item" data-page="reports">
+                    <li class="nav-item" data-page="reports" onclick="loadPage('reports')">
                         <i class="fas fa-chart-bar"></i>
                         <span>Reports</span>
                     </li>
-                    <li class="nav-item" data-page="daily-summary">
+                    <li class="nav-item" data-page="daily-summary" onclick="loadPage('daily-summary')">
                         <i class="fas fa-calendar-day"></i>
                         <span>Daily Summary</span>
                     </li>
@@ -76,7 +1120,7 @@
 
             <!-- Content Area -->
             <div class="content-area" id="content-area">
-                <!-- Dashboard content is pre-loaded -->
+                <!-- Dashboard Page (Default) -->
                 <div id="dashboard" class="page active">
                     <h2 class="page-title">
                         <i class="fas fa-tachometer-alt"></i> Dashboard Overview
@@ -145,7 +1189,7 @@
                                 <i class="fas fa-file-invoice"></i>
                                 <span>Daily Summary</span>
                             </button>
-                            <button class="action-btn" onclick="generateReport('daily')">
+                            <button class="action-btn" onclick="printReport()">
                                 <i class="fas fa-print"></i>
                                 <span>Print Report</span>
                             </button>
@@ -180,8 +1224,779 @@
                     <div class="class-distribution">
                         <h3>Students by Class</h3>
                         <div class="distribution-container" id="classDistribution">
-                            <!-- Will be populated by JavaScript -->
                             <div class="loading">Loading distribution data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Management Page (Hidden by default) -->
+                <div id="students" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-users"></i> Student Management
+                    </h2>
+                    
+                    <div class="page-controls">
+                        <button class="btn btn-primary" onclick="showAddStudentForm()">
+                            <i class="fas fa-user-plus"></i> Add New Student
+                        </button>
+                        <div class="search-box">
+                            <input type="text" id="searchStudents" placeholder="Search students by name or ID...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <select id="classFilter" onchange="loadStudents()">
+                            <option value="all">All Classes</option>
+                            <option value="Crèche">Crèche</option>
+                            <option value="Nursery 1">Nursery 1</option>
+                            <option value="Nursery 2">Nursery 2</option>
+                            <option value="Kindergarten 1">Kindergarten 1</option>
+                            <option value="Kindergarten 2">Kindergarten 2</option>
+                            <option value="Basic 1">Basic 1</option>
+                            <option value="Basic 2">Basic 2</option>
+                            <option value="Basic 3">Basic 3</option>
+                            <option value="Basic 4">Basic 4</option>
+                            <option value="Basic 5">Basic 5</option>
+                            <option value="Basic 6">Basic 6</option>
+                            <option value="JHS 1">JHS 1</option>
+                            <option value="JHS 2">JHS 2</option>
+                            <option value="JHS 3">JHS 3</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Add Student Form (Hidden by default) -->
+                    <div id="addStudentForm" class="form-container" style="display: none;">
+                        <h3><i class="fas fa-user-plus"></i> Add New Student</h3>
+                        <form id="studentForm" onsubmit="saveStudent(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="fullName">Full Name *</label>
+                                    <input type="text" id="fullName" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gender">Gender *</label>
+                                    <select id="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="studentClass">Class *</label>
+                                    <select id="studentClass" required>
+                                        <option value="">Select Class</option>
+                                        <option value="Crèche">Crèche</option>
+                                        <option value="Nursery 1">Nursery 1</option>
+                                        <option value="Nursery 2">Nursery 2</option>
+                                        <option value="Kindergarten 1">Kindergarten 1</option>
+                                        <option value="Kindergarten 2">Kindergarten 2</option>
+                                        <option value="Basic 1">Basic 1</option>
+                                        <option value="Basic 2">Basic 2</option>
+                                        <option value="Basic 3">Basic 3</option>
+                                        <option value="Basic 4">Basic 4</option>
+                                        <option value="Basic 5">Basic 5</option>
+                                        <option value="Basic 6">Basic 6</option>
+                                        <option value="JHS 1">JHS 1</option>
+                                        <option value="JHS 2">JHS 2</option>
+                                        <option value="JHS 3">JHS 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="academicTerm">Academic Term *</label>
+                                    <select id="academicTerm" required>
+                                        <option value="">Select Term</option>
+                                        <option value="Term 1">Term 1</option>
+                                        <option value="Term 2">Term 2</option>
+                                        <option value="Term 3">Term 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="academicYear">Academic Year *</label>
+                                    <select id="academicYear" required>
+                                        <option value="">Select Year</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Student
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="hideAddStudentForm()">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Students Table -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Full Name</th>
+                                    <th>Gender</th>
+                                    <th>Class</th>
+                                    <th>Term</th>
+                                    <th>Year</th>
+                                    <th>Balance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTable">
+                                <tr>
+                                    <td colspan="8">No students found. Click "Add New Student" to get started.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Fees Setup Page -->
+                <div id="fees" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-money-bill-wave"></i> Fees Setup & Management
+                    </h2>
+                    
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <p>Set daily and term fees for each class. Changes will affect all students in the selected class.</p>
+                    </div>
+                    
+                    <!-- Fees Configuration Form -->
+                    <div class="form-container">
+                        <h3><i class="fas fa-cog"></i> Configure Fees</h3>
+                        <form id="feesForm" onsubmit="saveFees(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="feeClass">Class *</label>
+                                    <select id="feeClass" required onchange="loadClassFees()">
+                                        <option value="">Select Class</option>
+                                        <option value="Crèche">Crèche</option>
+                                        <option value="Nursery 1">Nursery 1</option>
+                                        <option value="Nursery 2">Nursery 2</option>
+                                        <option value="Kindergarten 1">Kindergarten 1</option>
+                                        <option value="Kindergarten 2">Kindergarten 2</option>
+                                        <option value="Basic 1">Basic 1</option>
+                                        <option value="Basic 2">Basic 2</option>
+                                        <option value="Basic 3">Basic 3</option>
+                                        <option value="Basic 4">Basic 4</option>
+                                        <option value="Basic 5">Basic 5</option>
+                                        <option value="Basic 6">Basic 6</option>
+                                        <option value="JHS 1">JHS 1</option>
+                                        <option value="JHS 2">JHS 2</option>
+                                        <option value="JHS 3">JHS 3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="feeTerm">Academic Term *</label>
+                                    <select id="feeTerm" required onchange="loadClassFees()">
+                                        <option value="">Select Term</option>
+                                        <option value="Term 1">Term 1</option>
+                                        <option value="Term 2">Term 2</option>
+                                        <option value="Term 3">Term 3</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="feeYear">Academic Year *</label>
+                                    <select id="feeYear" required onchange="loadClassFees()">
+                                        <option value="">Select Year</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="dailyFee">Daily Fee (₵) *</label>
+                                    <input type="number" id="dailyFee" min="0" step="0.01" required>
+                                    <small>The amount charged per school day</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="termFee">Term Fee (₵) *</label>
+                                    <input type="number" id="termFee" min="0" step="0.01" required>
+                                    <small>Total fee for the entire term</small>
+                                </div>
+                            </div>
+                            
+                            <div class="current-fees" id="currentFeesInfo" style="display: none;">
+                                <h4><i class="fas fa-history"></i> Current Fees</h4>
+                                <p id="currentFeesText"></p>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Save Fees
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="resetFeesForm()">
+                                    <i class="fas fa-redo"></i> Reset
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- All Fees Table -->
+                    <div class="table-section">
+                        <h3><i class="fas fa-list"></i> All Configured Fees</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Class</th>
+                                        <th>Term</th>
+                                        <th>Year</th>
+                                        <th>Daily Fee</th>
+                                        <th>Term Fee</th>
+                                        <th>Last Updated</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="feesTable">
+                                    <tr>
+                                        <td colspan="7">No fees configured yet. Use the form above to set fees.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Collection Page -->
+                <div id="payments" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-credit-card"></i> Collect Fees Payment
+                    </h2>
+                    
+                    <!-- Two-column layout -->
+                    <div class="payment-container">
+                        <!-- Left column: Student selection and info -->
+                        <div class="payment-left">
+                            <div class="form-container">
+                                <h3><i class="fas fa-search"></i> Find Student</h3>
+                                <div class="form-group">
+                                    <label for="paymentStudentSearch">Search by Name or ID</label>
+                                    <div class="search-box">
+                                        <input type="text" id="paymentStudentSearch" 
+                                               placeholder="Enter student name or ID..." 
+                                               onkeyup="searchPaymentStudent()">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="paymentClassFilter">Filter by Class</label>
+                                    <select id="paymentClassFilter" onchange="loadPaymentStudents()">
+                                        <option value="all">All Classes</option>
+                                        <option value="Crèche">Crèche</option>
+                                        <option value="Nursery 1">Nursery 1</option>
+                                        <option value="Nursery 2">Nursery 2</option>
+                                        <option value="Kindergarten 1">Kindergarten 1</option>
+                                        <option value="Kindergarten 2">Kindergarten 2</option>
+                                        <option value="Basic 1">Basic 1</option>
+                                        <option value="Basic 2">Basic 2</option>
+                                        <option value="Basic 3">Basic 3</option>
+                                        <option value="Basic 4">Basic 4</option>
+                                        <option value="Basic 5">Basic 5</option>
+                                        <option value="Basic 6">Basic 6</option>
+                                        <option value="JHS 1">JHS 1</option>
+                                        <option value="JHS 2">JHS 2</option>
+                                        <option value="JHS 3">JHS 3</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="students-list" id="paymentStudentsList">
+                                    <div class="loading">Loading students...</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right column: Payment form -->
+                        <div class="payment-right">
+                            <div class="form-container">
+                                <h3><i class="fas fa-money-check-alt"></i> Payment Details</h3>
+                                
+                                <div class="student-info-card" id="selectedStudentInfo" style="display: none;">
+                                    <div class="info-header">
+                                        <h4>Selected Student</h4>
+                                        <span class="student-id" id="paymentStudentId"></span>
+                                    </div>
+                                    <div class="info-details">
+                                        <div class="info-row">
+                                            <span class="label">Name:</span>
+                                            <span class="value" id="paymentStudentName"></span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="label">Class:</span>
+                                            <span class="value" id="paymentStudentClass"></span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="label">Term:</span>
+                                            <span class="value" id="paymentStudentTerm"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <form id="paymentForm" onsubmit="processPayment(event)" style="display: none;">
+                                    <div class="fee-summary">
+                                        <h4><i class="fas fa-calculator"></i> Fee Summary</h4>
+                                        <div class="summary-row">
+                                            <span>Term Fee:</span>
+                                            <span id="termFeeDisplay">₵ 0.00</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Paid Already:</span>
+                                            <span id="paidAlready">₵ 0.00</span>
+                                        </div>
+                                        <div class="summary-row total">
+                                            <span>Balance Due:</span>
+                                            <span id="balanceDue">₵ 0.00</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentAmount">Amount to Pay (₵) *</label>
+                                        <input type="number" id="paymentAmount" min="0.01" step="0.01" required>
+                                        <small>Enter amount in Ghana Cedis</small>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentMethod">Payment Method *</label>
+                                        <select id="paymentMethod" required>
+                                            <option value="">Select Method</option>
+                                            <option value="Cash">Cash</option>
+                                            <option value="MoMo">Mobile Money (MoMo)</option>
+                                            <option value="Bank">Bank Transfer</option>
+                                            <option value="Cheque">Cheque</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentReceiver">Received By *</label>
+                                        <input type="text" id="paymentReceiver" 
+                                               value="Administrator" 
+                                               placeholder="Enter staff name" 
+                                               required>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="paymentDate">Payment Date</label>
+                                        <input type="date" id="paymentDate">
+                                    </div>
+                                    
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-success btn-lg">
+                                            <i class="fas fa-check-circle"></i> Complete Payment
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" onclick="clearPaymentForm()">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                                
+                                <div id="paymentSuccess" style="display: none;">
+                                    <div class="success-message">
+                                        <i class="fas fa-check-circle"></i>
+                                        <h3>Payment Successful!</h3>
+                                        <p>Payment has been recorded successfully.</p>
+                                        <div class="receipt-info">
+                                            <p><strong>Receipt Number:</strong> <span id="receiptNumber"></span></p>
+                                            <p><strong>New Balance:</strong> <span id="newBalance"></span></p>
+                                        </div>
+                                        <div class="action-buttons">
+                                            <button class="btn btn-primary" onclick="printReceipt()">
+                                                <i class="fas fa-print"></i> Print Receipt
+                                            </button>
+                                            <button class="btn btn-secondary" onclick="clearPaymentSuccess()">
+                                                <i class="fas fa-plus"></i> New Payment
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Receipts Page -->
+                <div id="receipts" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-receipt"></i> Receipt Management
+                    </h2>
+                    
+                    <div class="page-controls">
+                        <div class="search-box">
+                            <input type="text" id="searchReceipts" placeholder="Search receipts by number, student name or ID...">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <select id="receiptDateFilter">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="all">All Time</option>
+                        </select>
+                        <button class="btn btn-primary" onclick="searchReceipts()">
+                            <i class="fas fa-search"></i> Search
+                        </button>
+                    </div>
+                    
+                    <!-- Receipts Table -->
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Receipt No.</th>
+                                    <th>Date</th>
+                                    <th>Student</th>
+                                    <th>Class</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Receiver</th>
+                                    <th>Balance</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="receiptsTable">
+                                <tr>
+                                    <td colspan="9">No receipts found. Collect payments to generate receipts.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Receipt Preview Modal -->
+                    <div id="receiptModal" class="modal">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3><i class="fas fa-receipt"></i> Receipt Preview</h3>
+                                <button class="close-modal" onclick="closeReceiptModal()">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                <div id="receiptPreview">
+                                    <!-- Receipt will be loaded here -->
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-primary" onclick="printReceiptFromModal()">
+                                    <i class="fas fa-print"></i> Print Receipt
+                                </button>
+                                <button class="btn btn-secondary" onclick="downloadReceiptPDF()">
+                                    <i class="fas fa-download"></i> Download PDF
+                                </button>
+                                <button class="btn btn-secondary" onclick="closeReceiptModal()">
+                                    <i class="fas fa-times"></i> Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Page -->
+                <div id="reports" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-chart-bar"></i> Reports & Analytics
+                    </h2>
+                    
+                    <!-- Report Type Selector -->
+                    <div class="report-type-selector">
+                        <div class="report-type active" data-type="daily" onclick="selectReportType('daily')">
+                            <i class="fas fa-calendar-day"></i>
+                            <span>Daily Report</span>
+                        </div>
+                        <div class="report-type" data-type="weekly" onclick="selectReportType('weekly')">
+                            <i class="fas fa-calendar-week"></i>
+                            <span>Weekly Report</span>
+                        </div>
+                        <div class="report-type" data-type="monthly" onclick="selectReportType('monthly')">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Monthly Report</span>
+                        </div>
+                        <div class="report-type" data-type="termly" onclick="selectReportType('termly')">
+                            <i class="fas fa-book"></i>
+                            <span>Termly Report</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Report Filters -->
+                    <div class="report-filters">
+                        <div class="filter-group">
+                            <label for="reportDate">Date</label>
+                            <input type="date" id="reportDate">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="reportClass">Class</label>
+                            <select id="reportClass">
+                                <option value="all">All Classes</option>
+                                <option value="Crèche">Crèche</option>
+                                <option value="Nursery 1">Nursery 1</option>
+                                <option value="Nursery 2">Nursery 2</option>
+                                <option value="Kindergarten 1">Kindergarten 1</option>
+                                <option value="Kindergarten 2">Kindergarten 2</option>
+                                <option value="Basic 1">Basic 1</option>
+                                <option value="Basic 2">Basic 2</option>
+                                <option value="Basic 3">Basic 3</option>
+                                <option value="Basic 4">Basic 4</option>
+                                <option value="Basic 5">Basic 5</option>
+                                <option value="Basic 6">Basic 6</option>
+                                <option value="JHS 1">JHS 1</option>
+                                <option value="JHS 2">JHS 2</option>
+                                <option value="JHS 3">JHS 3</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="reportTerm">Term</label>
+                            <select id="reportTerm">
+                                <option value="all">All Terms</option>
+                                <option value="Term 1">Term 1</option>
+                                <option value="Term 2">Term 2</option>
+                                <option value="Term 3">Term 3</option>
+                            </select>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="generateReport()">
+                            <i class="fas fa-chart-bar"></i> Generate Report
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="printReport()">
+                            <i class="fas fa-print"></i> Print Report
+                        </button>
+                        
+                        <button class="btn btn-secondary" onclick="exportReportPDF()">
+                            <i class="fas fa-download"></i> Export PDF
+                        </button>
+                    </div>
+                    
+                    <!-- Report Results -->
+                    <div class="report-results">
+                        <div class="report-summary" id="reportSummary" style="display: none;">
+                            <h3>Report Summary</h3>
+                            <div class="summary-cards">
+                                <div class="summary-card">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="summary-info">
+                                        <h4>Total Collected</h4>
+                                        <p class="summary-value" id="reportTotalCollected">₵ 0.00</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="summary-card">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="summary-info">
+                                        <h4>Total Students</h4>
+                                        <p class="summary-value" id="reportTotalStudents">0</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="summary-card">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <div class="summary-info">
+                                        <h4>Students Paid</h4>
+                                        <p class="summary-value" id="reportStudentsPaid">0</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="summary-card">
+                                    <div class="summary-icon">
+                                        <i class="fas fa-user-times"></i>
+                                    </div>
+                                    <div class="summary-info">
+                                        <h4>Students Unpaid</h4>
+                                        <p class="summary-value" id="reportStudentsUnpaid">0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Report Details Table -->
+                        <div class="report-details" id="reportDetails">
+                            <div class="empty-report">
+                                <i class="fas fa-chart-line"></i>
+                                <h3>No Report Generated</h3>
+                                <p>Select report type and click "Generate Report" to view data.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Daily Summary Page -->
+                <div id="daily-summary" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-calendar-day"></i> End-of-Day Summary
+                    </h2>
+                    
+                    <div class="summary-controls">
+                        <div class="date-selector">
+                            <label for="summaryDate">Select Date:</label>
+                            <input type="date" id="summaryDate">
+                            <button class="btn btn-primary" onclick="loadDailySummary()">
+                                <i class="fas fa-sync"></i> Load Summary
+                            </button>
+                        </div>
+                        
+                        <div class="summary-actions">
+                            <button class="btn btn-success" onclick="printDailySummary()">
+                                <i class="fas fa-print"></i> Print Summary
+                            </button>
+                            <button class="btn btn-secondary" onclick="exportDailySummaryPDF()">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
+                            <button class="btn btn-primary" onclick="sendDailyReport()">
+                                <i class="fas fa-paper-plane"></i> Email Report
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Daily Summary Cards -->
+                    <div class="daily-summary-cards" id="dailySummaryCards">
+                        <div class="summary-card total-collected">
+                            <div class="card-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Total Collected Today</h3>
+                                <p class="card-value" id="dailyTotalCollected">₵ 0.00</p>
+                                <p class="card-subtitle" id="dailyTotalPayments">0 payments</p>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card students-paid">
+                            <div class="card-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Students Paid</h3>
+                                <p class="card-value" id="dailyStudentsPaid">0</p>
+                                <p class="card-subtitle">Made payments today</p>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card students-unpaid">
+                            <div class="card-icon">
+                                <i class="fas fa-user-times"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Students Unpaid</h3>
+                                <p class="card-value" id="dailyStudentsUnpaid">0</p>
+                                <p class="card-subtitle">No payment today</p>
+                            </div>
+                        </div>
+                        
+                        <div class="summary-card outstanding-balance">
+                            <div class="card-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="card-content">
+                                <h3>Outstanding Balance</h3>
+                                <p class="card-value" id="dailyOutstanding">₵ 0.00</p>
+                                <p class="card-subtitle">Total to collect</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Detailed Summary -->
+                    <div class="detailed-summary">
+                        <div class="summary-tabs">
+                            <button class="tab-btn active" onclick="showSummaryTab('paid')">
+                                <i class="fas fa-user-check"></i> Paid Students
+                            </button>
+                            <button class="tab-btn" onclick="showSummaryTab('unpaid')">
+                                <i class="fas fa-user-times"></i> Unpaid Students
+                            </button>
+                            <button class="tab-btn" onclick="showSummaryTab('by-class')">
+                                <i class="fas fa-chart-bar"></i> By Class
+                            </button>
+                        </div>
+                        
+                        <!-- Paid Students Tab -->
+                        <div class="tab-content active" id="paidTab">
+                            <h3>Students Who Paid Today</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Student Name</th>
+                                            <th>Class</th>
+                                            <th>Amount Paid</th>
+                                            <th>Payment Method</th>
+                                            <th>Time</th>
+                                            <th>Receipt No.</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="paidStudentsTable">
+                                        <tr>
+                                            <td colspan="6">No payments recorded for today</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Unpaid Students Tab -->
+                        <div class="tab-content" id="unpaidTab">
+                            <h3>Students Who Haven't Paid Today</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Student Name</th>
+                                            <th>Class</th>
+                                            <th>Last Payment Date</th>
+                                            <th>Balance Due</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="unpaidStudentsTable">
+                                        <tr>
+                                            <td colspan="5">No unpaid students found</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- By Class Tab -->
+                        <div class="tab-content" id="byClassTab">
+                            <h3>Summary by Class</h3>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Class</th>
+                                            <th>Total Students</th>
+                                            <th>Students Paid</th>
+                                            <th>Students Unpaid</th>
+                                            <th>Amount Collected</th>
+                                            <th>Outstanding</th>
+                                            <th>% Paid</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="byClassTable">
+                                        <tr>
+                                            <td colspan="7">No class summary available</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -189,8 +2004,1014 @@
         </div>
     </div>
 
-    <!-- JavaScript Files -->
-    <script src="config.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // Application State
+        const appState = {
+            students: [],
+            fees: [],
+            payments: [],
+            currentPage: 'dashboard',
+            selectedStudent: null,
+            reportType: 'daily'
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current date in all date inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentDate').value = today;
+            document.getElementById('summaryDate').value = today;
+            document.getElementById('reportDate').value = today;
+            
+            // Set current date in header
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Load sample data
+            loadSampleData();
+            
+            // Update dashboard
+            updateDashboard();
+            
+            // Load initial data for current page
+            loadPageData('dashboard');
+        });
+
+        // Navigation
+        function loadPage(pageName) {
+            // Update navigation
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.nav-item[data-page="${pageName}"]`).classList.add('active');
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            const page = document.getElementById(pageName);
+            if (page) {
+                page.classList.add('active');
+                appState.currentPage = pageName;
+                loadPageData(pageName);
+            }
+        }
+
+        function loadPageData(pageName) {
+            switch(pageName) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'students':
+                    loadStudents();
+                    break;
+                case 'fees':
+                    loadFeesTable();
+                    break;
+                case 'payments':
+                    loadPaymentStudents();
+                    break;
+                case 'receipts':
+                    loadReceipts();
+                    break;
+                case 'reports':
+                    // Initialize reports page
+                    break;
+                case 'daily-summary':
+                    loadDailySummary();
+                    break;
+            }
+        }
+
+        // Sample Data (In a real app, this would come from a database)
+        function loadSampleData() {
+            // Sample students
+            appState.students = [
+                {
+                    id: 'STD001',
+                    name: 'Kwame Osei',
+                    gender: 'Male',
+                    class: 'Basic 6',
+                    term: 'Term 1',
+                    year: '2024',
+                    balance: 150.00
+                },
+                {
+                    id: 'STD002',
+                    name: 'Ama Mensah',
+                    gender: 'Female',
+                    class: 'JHS 1',
+                    term: 'Term 1',
+                    year: '2024',
+                    balance: 200.00
+                },
+                {
+                    id: 'STD003',
+                    name: 'Kofi Asante',
+                    gender: 'Male',
+                    class: 'Basic 4',
+                    term: 'Term 1',
+                    year: '2024',
+                    balance: 0.00
+                }
+            ];
+
+            // Sample fees
+            appState.fees = [
+                {
+                    class: 'Basic 6',
+                    term: 'Term 1',
+                    year: '2024',
+                    dailyFee: 5.00,
+                    termFee: 300.00,
+                    updated: '2024-01-15'
+                },
+                {
+                    class: 'JHS 1',
+                    term: 'Term 1',
+                    year: '2024',
+                    dailyFee: 7.00,
+                    termFee: 420.00,
+                    updated: '2024-01-15'
+                }
+            ];
+
+            // Sample payments
+            appState.payments = [
+                {
+                    id: 'PAY001',
+                    receiptNo: 'RCPT001',
+                    date: new Date().toISOString().split('T')[0],
+                    time: '10:30 AM',
+                    studentId: 'STD003',
+                    studentName: 'Kofi Asante',
+                    class: 'Basic 4',
+                    amount: 300.00,
+                    method: 'Cash',
+                    receiver: 'Administrator',
+                    balance: 0.00
+                }
+            ];
+        }
+
+        // Dashboard Functions
+        function updateDashboard() {
+            // Update statistics
+            document.getElementById('totalStudents').textContent = appState.students.length;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const todayPayments = appState.payments.filter(p => p.date === today);
+            const todayTotal = todayPayments.reduce((sum, p) => sum + p.amount, 0);
+            
+            document.getElementById('todayCollection').textContent = `₵ ${todayTotal.toFixed(2)}`;
+            document.getElementById('todayPayments').textContent = `${todayPayments.length} payments today`;
+            
+            const totalCollected = appState.payments.reduce((sum, p) => sum + p.amount, 0);
+            document.getElementById('totalCollected').textContent = `₵ ${totalCollected.toFixed(2)}`;
+            
+            const totalOutstanding = appState.students.reduce((sum, s) => sum + s.balance, 0);
+            document.getElementById('totalOutstanding').textContent = `₵ ${totalOutstanding.toFixed(2)}`;
+            
+            // Update recent payments
+            updateRecentPayments();
+            
+            // Update class distribution
+            updateClassDistribution();
+        }
+
+        function updateRecentPayments() {
+            const table = document.getElementById('recentPaymentsTable');
+            const recentPayments = appState.payments.slice(0, 5); // Last 5 payments
+            
+            if (recentPayments.length === 0) {
+                table.innerHTML = '<tr><td colspan="6">No recent payments</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = recentPayments.map(payment => `
+                <tr>
+                    <td>${payment.time}</td>
+                    <td>${payment.studentName}</td>
+                    <td>${payment.class}</td>
+                    <td>₵ ${payment.amount.toFixed(2)}</td>
+                    <td>${payment.method}</td>
+                    <td><span class="status-badge paid">Paid</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateClassDistribution() {
+            const distribution = {};
+            appState.students.forEach(student => {
+                if (!distribution[student.class]) {
+                    distribution[student.class] = 0;
+                }
+                distribution[student.class]++;
+            });
+            
+            const container = document.getElementById('classDistribution');
+            container.innerHTML = Object.entries(distribution).map(([className, count]) => `
+                <div class="class-item">
+                    <span class="class-name">${className}</span>
+                    <div class="class-bar">
+                        <div class="bar-fill" style="width: ${(count / appState.students.length) * 100}%"></div>
+                    </div>
+                    <span class="class-count">${count}</span>
+                </div>
+            `).join('');
+            
+            // Add CSS for class distribution
+            const style = document.createElement('style');
+            style.textContent = `
+                .class-item {
+                    display: flex;
+                    align-items: center;
+                    margin-bottom: 0.8rem;
+                    gap: 1rem;
+                }
+                .class-name {
+                    width: 100px;
+                    font-weight: 500;
+                    color: #555;
+                }
+                .class-bar {
+                    flex: 1;
+                    height: 20px;
+                    background: #e0e0e0;
+                    border-radius: 10px;
+                    overflow: hidden;
+                }
+                .bar-fill {
+                    height: 100%;
+                    background: linear-gradient(90deg, #2196f3, #1976d2);
+                    border-radius: 10px;
+                }
+                .class-count {
+                    width: 40px;
+                    text-align: right;
+                    font-weight: 600;
+                    color: #333;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Student Management Functions
+        function showAddStudentForm() {
+            document.getElementById('addStudentForm').style.display = 'block';
+        }
+
+        function hideAddStudentForm() {
+            document.getElementById('addStudentForm').style.display = 'none';
+            document.getElementById('studentForm').reset();
+        }
+
+        function saveStudent(event) {
+            event.preventDefault();
+            
+            const studentId = 'STD' + String(appState.students.length + 1).padStart(3, '0');
+            const newStudent = {
+                id: studentId,
+                name: document.getElementById('fullName').value,
+                gender: document.getElementById('gender').value,
+                class: document.getElementById('studentClass').value,
+                term: document.getElementById('academicTerm').value,
+                year: document.getElementById('academicYear').value,
+                balance: 0.00
+            };
+            
+            appState.students.push(newStudent);
+            hideAddStudentForm();
+            loadStudents();
+            updateDashboard();
+            
+            alert(`Student ${newStudent.name} added successfully with ID: ${studentId}`);
+        }
+
+        function loadStudents() {
+            const searchTerm = document.getElementById('searchStudents').value.toLowerCase();
+            const classFilter = document.getElementById('classFilter').value;
+            
+            let filteredStudents = appState.students;
+            
+            if (searchTerm) {
+                filteredStudents = filteredStudents.filter(s => 
+                    s.name.toLowerCase().includes(searchTerm) || 
+                    s.id.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (classFilter !== 'all') {
+                filteredStudents = filteredStudents.filter(s => s.class === classFilter);
+            }
+            
+            const table = document.getElementById('studentsTable');
+            
+            if (filteredStudents.length === 0) {
+                table.innerHTML = '<tr><td colspan="8">No students found</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = filteredStudents.map(student => `
+                <tr>
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.gender}</td>
+                    <td>${student.class}</td>
+                    <td>${student.term}</td>
+                    <td>${student.year}</td>
+                    <td>₵ ${student.balance.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="viewStudent('${student.id}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="editStudent('${student.id}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Fees Management Functions
+        function saveFees(event) {
+            event.preventDefault();
+            
+            const classFees = {
+                class: document.getElementById('feeClass').value,
+                term: document.getElementById('feeTerm').value,
+                year: document.getElementById('feeYear').value,
+                dailyFee: parseFloat(document.getElementById('dailyFee').value),
+                termFee: parseFloat(document.getElementById('termFee').value),
+                updated: new Date().toISOString().split('T')[0]
+            };
+            
+            // Check if fees already exist for this class/term/year
+            const existingIndex = appState.fees.findIndex(f => 
+                f.class === classFees.class && 
+                f.term === classFees.term && 
+                f.year === classFees.year
+            );
+            
+            if (existingIndex !== -1) {
+                appState.fees[existingIndex] = classFees;
+            } else {
+                appState.fees.push(classFees);
+            }
+            
+            document.getElementById('feesForm').reset();
+            loadFeesTable();
+            
+            alert(`Fees for ${classFees.class} - ${classFees.term} ${classFees.year} saved successfully!`);
+        }
+
+        function loadClassFees() {
+            const classVal = document.getElementById('feeClass').value;
+            const termVal = document.getElementById('feeTerm').value;
+            const yearVal = document.getElementById('feeYear').value;
+            
+            if (!classVal || !termVal || !yearVal) return;
+            
+            const existingFees = appState.fees.find(f => 
+                f.class === classVal && f.term === termVal && f.year === yearVal
+            );
+            
+            const infoDiv = document.getElementById('currentFeesInfo');
+            if (existingFees) {
+                document.getElementById('dailyFee').value = existingFees.dailyFee;
+                document.getElementById('termFee').value = existingFees.termFee;
+                document.getElementById('currentFeesText').textContent = 
+                    `Current fees: Daily - ₵${existingFees.dailyFee.toFixed(2)}, Term - ₵${existingFees.termFee.toFixed(2)} (Updated: ${existingFees.updated})`;
+                infoDiv.style.display = 'block';
+            } else {
+                document.getElementById('dailyFee').value = '';
+                document.getElementById('termFee').value = '';
+                infoDiv.style.display = 'none';
+            }
+        }
+
+        function loadFeesTable() {
+            const table = document.getElementById('feesTable');
+            
+            if (appState.fees.length === 0) {
+                table.innerHTML = '<tr><td colspan="7">No fees configured yet</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = appState.fees.map(fee => `
+                <tr>
+                    <td>${fee.class}</td>
+                    <td>${fee.term}</td>
+                    <td>${fee.year}</td>
+                    <td>₵ ${fee.dailyFee.toFixed(2)}</td>
+                    <td>₵ ${fee.termFee.toFixed(2)}</td>
+                    <td>${fee.updated}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-sm" onclick="editFees('${fee.class}', '${fee.term}', '${fee.year}')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteFees('${fee.class}', '${fee.term}', '${fee.year}')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function resetFeesForm() {
+            document.getElementById('feesForm').reset();
+            document.getElementById('currentFeesInfo').style.display = 'none';
+        }
+
+        // Payment Functions
+        function loadPaymentStudents() {
+            const searchTerm = document.getElementById('paymentStudentSearch').value.toLowerCase();
+            const classFilter = document.getElementById('paymentClassFilter').value;
+            
+            let filteredStudents = appState.students;
+            
+            if (searchTerm) {
+                filteredStudents = filteredStudents.filter(s => 
+                    s.name.toLowerCase().includes(searchTerm) || 
+                    s.id.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            if (classFilter !== 'all') {
+                filteredStudents = filteredStudents.filter(s => s.class === classFilter);
+            }
+            
+            const list = document.getElementById('paymentStudentsList');
+            
+            if (filteredStudents.length === 0) {
+                list.innerHTML = '<div class="loading">No students found</div>';
+                return;
+            }
+            
+            list.innerHTML = filteredStudents.map(student => `
+                <div class="student-item" onclick="selectStudentForPayment('${student.id}')">
+                    <div class="student-name">${student.name}</div>
+                    <div class="student-details">
+                        <span class="student-id">${student.id}</span> | 
+                        <span class="student-class">${student.class}</span> | 
+                        <span class="student-balance">Balance: ₵${student.balance.toFixed(2)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchPaymentStudent() {
+            loadPaymentStudents();
+        }
+
+        function selectStudentForPayment(studentId) {
+            const student = appState.students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            appState.selectedStudent = student;
+            
+            // Update UI
+            document.querySelectorAll('.student-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelectorAll('.student-item').forEach(item => {
+                if (item.querySelector('.student-id').textContent === studentId) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Show student info
+            document.getElementById('selectedStudentInfo').style.display = 'block';
+            document.getElementById('paymentStudentId').textContent = student.id;
+            document.getElementById('paymentStudentName').textContent = student.name;
+            document.getElementById('paymentStudentClass').textContent = student.class;
+            document.getElementById('paymentStudentTerm').textContent = student.term;
+            
+            // Show payment form
+            document.getElementById('paymentForm').style.display = 'block';
+            document.getElementById('paymentSuccess').style.display = 'none';
+            
+            // Calculate and display fee summary
+            const classFees = appState.fees.find(f => 
+                f.class === student.class && f.term === student.term && f.year === student.year
+            );
+            
+            if (classFees) {
+                const termFee = classFees.termFee;
+                const paidAlready = termFee - student.balance;
+                const balanceDue = student.balance;
+                
+                document.getElementById('termFeeDisplay').textContent = `₵ ${termFee.toFixed(2)}`;
+                document.getElementById('paidAlready').textContent = `₵ ${paidAlready.toFixed(2)}`;
+                document.getElementById('balanceDue').textContent = `₵ ${balanceDue.toFixed(2)}`;
+            }
+        }
+
+        function processPayment(event) {
+            event.preventDefault();
+            
+            if (!appState.selectedStudent) {
+                alert('Please select a student first');
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById('paymentAmount').value);
+            const method = document.getElementById('paymentMethod').value;
+            const receiver = document.getElementById('paymentReceiver').value;
+            const date = document.getElementById('paymentDate').value;
+            
+            if (amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            // Generate receipt number
+            const receiptNo = 'RCPT' + String(appState.payments.length + 1).padStart(3, '0');
+            
+            // Create payment record
+            const payment = {
+                id: 'PAY' + String(appState.payments.length + 1).padStart(3, '0'),
+                receiptNo: receiptNo,
+                date: date,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                studentId: appState.selectedStudent.id,
+                studentName: appState.selectedStudent.name,
+                class: appState.selectedStudent.class,
+                amount: amount,
+                method: method,
+                receiver: receiver,
+                balance: appState.selectedStudent.balance - amount
+            };
+            
+            // Update student balance
+            const studentIndex = appState.students.findIndex(s => s.id === appState.selectedStudent.id);
+            if (studentIndex !== -1) {
+                appState.students[studentIndex].balance -= amount;
+                if (appState.students[studentIndex].balance < 0) {
+                    appState.students[studentIndex].balance = 0;
+                }
+            }
+            
+            // Add payment to records
+            appState.payments.push(payment);
+            
+            // Update UI
+            document.getElementById('paymentForm').style.display = 'none';
+            document.getElementById('paymentSuccess').style.display = 'block';
+            document.getElementById('receiptNumber').textContent = receiptNo;
+            document.getElementById('newBalance').textContent = `₵ ${appState.selectedStudent.balance.toFixed(2)}`;
+            
+            // Update dashboard
+            updateDashboard();
+        }
+
+        function clearPaymentForm() {
+            appState.selectedStudent = null;
+            document.getElementById('selectedStudentInfo').style.display = 'none';
+            document.getElementById('paymentForm').style.display = 'none';
+            document.getElementById('paymentSuccess').style.display = 'none';
+            document.getElementById('paymentForm').reset();
+            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('.student-item').forEach(item => {
+                item.classList.remove('active');
+            });
+        }
+
+        function clearPaymentSuccess() {
+            clearPaymentForm();
+            loadPaymentStudents();
+        }
+
+        // Receipt Functions
+        function loadReceipts() {
+            const searchTerm = document.getElementById('searchReceipts').value.toLowerCase();
+            const dateFilter = document.getElementById('receiptDateFilter').value;
+            
+            let filteredPayments = appState.payments;
+            
+            if (searchTerm) {
+                filteredPayments = filteredPayments.filter(p => 
+                    p.receiptNo.toLowerCase().includes(searchTerm) || 
+                    p.studentName.toLowerCase().includes(searchTerm) ||
+                    p.studentId.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            // Apply date filter (simplified)
+            if (dateFilter !== 'all') {
+                const today = new Date().toISOString().split('T')[0];
+                // In a real app, you would filter by week/month
+                filteredPayments = filteredPayments.filter(p => p.date === today);
+            }
+            
+            const table = document.getElementById('receiptsTable');
+            
+            if (filteredPayments.length === 0) {
+                table.innerHTML = '<tr><td colspan="9">No receipts found</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = filteredPayments.map(payment => `
+                <tr>
+                    <td>${payment.receiptNo}</td>
+                    <td>${payment.date}</td>
+                    <td>${payment.studentName}</td>
+                    <td>${payment.class}</td>
+                    <td>₵ ${payment.amount.toFixed(2)}</td>
+                    <td>${payment.method}</td>
+                    <td>${payment.receiver}</td>
+                    <td>₵ ${payment.balance.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="viewReceipt('${payment.receiptNo}')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="printReceiptById('${payment.receiptNo}')">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchReceipts() {
+            loadReceipts();
+        }
+
+        function viewReceipt(receiptNo) {
+            const payment = appState.payments.find(p => p.receiptNo === receiptNo);
+            if (!payment) return;
+            
+            const receiptHTML = `
+                <div style="padding: 2rem; max-width: 600px; margin: 0 auto;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <h2 style="color: #1a237e;">HOME FIELD PREPARATORY SCHOOL</h2>
+                        <p>Excellence in Basic Education</p>
+                        <hr style="margin: 1rem 0;">
+                        <h3>OFFICIAL RECEIPT</h3>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Receipt No:</strong> ${payment.receiptNo}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Date:</strong> ${payment.date}
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                            <strong>Time:</strong> ${payment.time}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h4>Student Information</h4>
+                        <p><strong>Name:</strong> ${payment.studentName}</p>
+                        <p><strong>Student ID:</strong> ${payment.studentId}</p>
+                        <p><strong>Class:</strong> ${payment.class}</p>
+                    </div>
+                    
+                    <div style="margin-bottom: 2rem;">
+                        <h4>Payment Details</h4>
+                        <p><strong>Amount Paid:</strong> ₵ ${payment.amount.toFixed(2)}</p>
+                        <p><strong>Payment Method:</strong> ${payment.method}</p>
+                        <p><strong>Received By:</strong> ${payment.receiver}</p>
+                        <p><strong>Balance After Payment:</strong> ₵ ${payment.balance.toFixed(2)}</p>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div style="text-align: center; margin-top: 2rem;">
+                        <p>Thank you for your payment!</p>
+                        <p style="font-size: 0.9rem; color: #666;">This is an official receipt from Home Field Preparatory School</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('receiptPreview').innerHTML = receiptHTML;
+            document.getElementById('receiptModal').classList.add('active');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('receiptModal').classList.remove('active');
+        }
+
+        function printReceiptFromModal() {
+            const printContent = document.getElementById('receiptPreview').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+            
+            // Re-initialize the page
+            loadPage(appState.currentPage);
+        }
+
+        // Report Functions
+        function selectReportType(type) {
+            appState.reportType = type;
+            document.querySelectorAll('.report-type').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`.report-type[data-type="${type}"]`).classList.add('active');
+        }
+
+        function generateReport() {
+            const reportType = appState.reportType;
+            const date = document.getElementById('reportDate').value;
+            const classFilter = document.getElementById('reportClass').value;
+            const termFilter = document.getElementById('reportTerm').value;
+            
+            // Filter data based on selections
+            let filteredStudents = appState.students;
+            let filteredPayments = appState.payments;
+            
+            if (classFilter !== 'all') {
+                filteredStudents = filteredStudents.filter(s => s.class === classFilter);
+                filteredPayments = filteredPayments.filter(p => p.class === classFilter);
+            }
+            
+            // Calculate totals
+            const totalStudents = filteredStudents.length;
+            const totalCollected = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+            const totalOutstanding = filteredStudents.reduce((sum, s) => sum + s.balance, 0);
+            
+            // For demo, let's assume 70% paid
+            const studentsPaid = Math.floor(totalStudents * 0.7);
+            const studentsUnpaid = totalStudents - studentsPaid;
+            
+            // Update summary cards
+            document.getElementById('reportTotalCollected').textContent = `₵ ${totalCollected.toFixed(2)}`;
+            document.getElementById('reportTotalStudents').textContent = totalStudents;
+            document.getElementById('reportStudentsPaid').textContent = studentsPaid;
+            document.getElementById('reportStudentsUnpaid').textContent = studentsUnpaid;
+            
+            // Show summary
+            document.getElementById('reportSummary').style.display = 'block';
+            
+            // Generate report table
+            const detailsDiv = document.getElementById('reportDetails');
+            detailsDiv.innerHTML = `
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Class</th>
+                                <th>Total Paid</th>
+                                <th>Balance</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${filteredStudents.map(student => {
+                                const studentPayments = filteredPayments.filter(p => p.studentId === student.id);
+                                const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+                                const status = student.balance <= 0 ? 'Paid' : 'Partial';
+                                
+                                return `
+                                    <tr>
+                                        <td>${student.id}</td>
+                                        <td>${student.name}</td>
+                                        <td>${student.class}</td>
+                                        <td>₵ ${totalPaid.toFixed(2)}</td>
+                                        <td>₵ ${student.balance.toFixed(2)}</td>
+                                        <td><span class="status-badge ${status.toLowerCase()}">${status}</span></td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            // Add status badge styles
+            const style = document.createElement('style');
+            style.textContent = `
+                .status-badge {
+                    padding: 0.3rem 0.6rem;
+                    border-radius: 20px;
+                    font-size: 0.8rem;
+                    font-weight: 500;
+                }
+                .status-badge.paid {
+                    background: #e8f5e9;
+                    color: #2e7d32;
+                }
+                .status-badge.partial {
+                    background: #fff3e0;
+                    color: #f57c00;
+                }
+                .btn-sm {
+                    padding: 0.3rem 0.6rem;
+                    font-size: 0.8rem;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Daily Summary Functions
+        function loadDailySummary() {
+            const date = document.getElementById('summaryDate').value;
+            
+            // Filter payments for selected date
+            const dailyPayments = appState.payments.filter(p => p.date === date);
+            const dailyTotal = dailyPayments.reduce((sum, p) => sum + p.amount, 0);
+            
+            // Update summary cards
+            document.getElementById('dailyTotalCollected').textContent = `₵ ${dailyTotal.toFixed(2)}`;
+            document.getElementById('dailyTotalPayments').textContent = `${dailyPayments.length} payments`;
+            
+            // For demo, calculate paid/unpaid students
+            const studentsPaid = dailyPayments.length;
+            const totalStudents = appState.students.length;
+            const studentsUnpaid = totalStudents - studentsPaid;
+            const totalOutstanding = appState.students.reduce((sum, s) => sum + s.balance, 0);
+            
+            document.getElementById('dailyStudentsPaid').textContent = studentsPaid;
+            document.getElementById('dailyStudentsUnpaid').textContent = studentsUnpaid;
+            document.getElementById('dailyOutstanding').textContent = `₵ ${totalOutstanding.toFixed(2)}`;
+            
+            // Update paid students table
+            updatePaidStudentsTable(dailyPayments);
+            
+            // Update unpaid students table
+            updateUnpaidStudentsTable();
+            
+            // Update class summary table
+            updateClassSummaryTable();
+        }
+
+        function updatePaidStudentsTable(payments) {
+            const table = document.getElementById('paidStudentsTable');
+            
+            if (payments.length === 0) {
+                table.innerHTML = '<tr><td colspan="6">No payments recorded for selected date</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = payments.map(payment => `
+                <tr>
+                    <td>${payment.studentName}</td>
+                    <td>${payment.class}</td>
+                    <td>₵ ${payment.amount.toFixed(2)}</td>
+                    <td>${payment.method}</td>
+                    <td>${payment.time}</td>
+                    <td>${payment.receiptNo}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateUnpaidStudentsTable() {
+            const table = document.getElementById('unpaidStudentsTable');
+            const unpaidStudents = appState.students.filter(s => s.balance > 0);
+            
+            if (unpaidStudents.length === 0) {
+                table.innerHTML = '<tr><td colspan="5">All students are paid up</td></tr>';
+                return;
+            }
+            
+            table.innerHTML = unpaidStudents.map(student => `
+                <tr>
+                    <td>${student.name}</td>
+                    <td>${student.class}</td>
+                    <td>N/A</td>
+                    <td>₵ ${student.balance.toFixed(2)}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" onclick="collectFromStudent('${student.id}')">
+                            <i class="fas fa-money-bill"></i> Collect
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateClassSummaryTable() {
+            const table = document.getElementById('byClassTable');
+            
+            // Group students by class
+            const classSummary = {};
+            appState.students.forEach(student => {
+                if (!classSummary[student.class]) {
+                    classSummary[student.class] = {
+                        total: 0,
+                        paid: 0,
+                        unpaid: 0,
+                        collected: 0,
+                        outstanding: 0
+                    };
+                }
+                classSummary[student.class].total++;
+                classSummary[student.class].outstanding += student.balance;
+                
+                // For demo, mark as paid if balance is 0
+                if (student.balance === 0) {
+                    classSummary[student.class].paid++;
+                } else {
+                    classSummary[student.class].unpaid++;
+                }
+            });
+            
+            // Add payment amounts per class
+            appState.payments.forEach(payment => {
+                if (classSummary[payment.class]) {
+                    classSummary[payment.class].collected += payment.amount;
+                }
+            });
+            
+            table.innerHTML = Object.entries(classSummary).map(([className, data]) => {
+                const percentPaid = data.total > 0 ? Math.round((data.paid / data.total) * 100) : 0;
+                return `
+                    <tr>
+                        <td>${className}</td>
+                        <td>${data.total}</td>
+                        <td>${data.paid}</td>
+                        <td>${data.unpaid}</td>
+                        <td>₵ ${data.collected.toFixed(2)}</td>
+                        <td>₵ ${data.outstanding.toFixed(2)}</td>
+                        <td>${percentPaid}%</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function showSummaryTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.querySelector(`.tab-btn[onclick*="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Utility Functions
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                alert('Logged out successfully!');
+                // In a real app, you would redirect to login page
+                // window.location.href = 'login.html';
+            }
+        }
+
+        function printReport() {
+            window.print();
+        }
+
+        function printReceipt() {
+            // This would print the most recent receipt
+            if (appState.payments.length > 0) {
+                const receiptNo = appState.payments[appState.payments.length - 1].receiptNo;
+                viewReceipt(receiptNo);
+                setTimeout(() => {
+                    printReceiptFromModal();
+                }, 500);
+            }
+        }
+
+        function printReceiptById(receiptNo) {
+            viewReceipt(receiptNo);
+            setTimeout(() => {
+                printReceiptFromModal();
+            }, 500);
+        }
+
+        function collectFromStudent(studentId) {
+            loadPage('payments');
+            setTimeout(() => {
+                selectStudentForPayment(studentId);
+            }, 100);
+        }
+
+        // Export functions (stubs for now)
+        function exportReportPDF() {
+            alert('PDF export functionality would be implemented with a backend service');
+        }
+
+        function exportDailySummaryPDF() {
+            alert('PDF export functionality would be implemented with a backend service');
+        }
+
+        function downloadReceiptPDF() {
+            alert('PDF download functionality would be implemented with a backend service');
+        }
+
+        function sendDailyReport() {
+            alert('Email functionality would be implemented with a backend service');
+        }
+
+        function printDailySummary() {
+            window.print();
+        }
+    </script>
 </body>
 </html>
