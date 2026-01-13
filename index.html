@@ -1380,8 +1380,8 @@
                     <i class="fas fa-sign-out-alt"></i>
                 </button>
                 <button class="logout-btn" onclick="showSystemAdmin()" title="System Admin" style="margin-left: 10px;">
-        <i class="fas fa-cogs"></i>
-    </button>
+                    <i class="fas fa-cogs"></i>
+                </button>
             </div>
         </header>
 
@@ -1418,11 +1418,10 @@
                         <i class="fas fa-calendar-day"></i>
                         <span>Daily Summary</span>
                     </li>
-                    <!-- Add this to your sidebar menu -->
-<li class="nav-item" onclick="showSystemAdmin()">
-    <i class="fas fa-cogs"></i>
-    <span>System Admin</span>
-</li>
+                    <li class="nav-item" onclick="showSystemAdmin()">
+                        <i class="fas fa-cogs"></i>
+                        <span>System Admin</span>
+                    </li>
                 </ul>
                 
                 <div class="system-status">
@@ -1643,15 +1642,10 @@
                                     <label for="academicYear">Academic Year *</label>
                                     <select id="academicYear" required>
                                         <option value="">Select Year</option>
-                                        <option value="2024">2025/2026</option>
-                                        <option value="2025">2026/2027</option>
-                                        <option value="2026">2027/2028</option>
-                                        <option value="2027">2028/2029</option>
-                                        <option value="2027">2029/2030</option>
-                                        <option value="2027">2030/2031</option>
-                                        <option value="2027">2031/2032</option>
-                                        <option value="2027">2032/2033</option>
-                                        <option value="2027">2033/2034</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -1747,15 +1741,10 @@
                                 <div class="form-group">
                                     <label for="feeYear">Academic Year *</label>
                                     <select id="feeYear" required onchange="loadClassFees()">
-                                        <option value="2024">2025/2026</option>
-                                        <option value="2025">2026/2027</option>
-                                        <option value="2026">2027/2028</option>
-                                        <option value="2027">2028/2029</option>
-                                        <option value="2027">2029/2030</option>
-                                        <option value="2027">2030/2031</option>
-                                        <option value="2027">2031/2032</option>
-                                        <option value="2027">2032/2033</option>
-                                        <option value="2027">2033/2034</option>
+                                        <option value="2024">2024</option>
+                                        <option value="2025">2025</option>
+                                        <option value="2026">2026</option>
+                                        <option value="2027">2027</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -2548,358 +2537,6 @@
 
     <script>
         // ============================================
-        // GOOGLE SHEETS CONFIGURATION & FUNCTIONS
-        // ============================================
-        
-        const GOOGLE_SHEETS_CONFIG = {
-            apiKey: '',
-            sheetId: '',
-            sheets: {
-                students: 'Students',
-                fees: 'Fees',
-                payments: 'Payments',
-                receipts: 'Receipts'
-            },
-            isConfigured: false
-        };
-
-        // Load configuration from localStorage
-        function loadSheetsConfig() {
-            const savedConfig = localStorage.getItem('hfps_sheets_config');
-            if (savedConfig) {
-                const config = JSON.parse(savedConfig);
-                Object.assign(GOOGLE_SHEETS_CONFIG, config);
-                GOOGLE_SHEETS_CONFIG.isConfigured = !!(config.apiKey && config.sheetId);
-                
-                // Update form fields if modal is open
-                if (document.getElementById('sheetsApiKey')) {
-                    document.getElementById('sheetsApiKey').value = config.apiKey || '';
-                    document.getElementById('sheetId').value = config.sheetId || '';
-                    document.getElementById('studentsSheet').value = config.sheets.students || 'Students';
-                    document.getElementById('feesSheet').value = config.sheets.fees || 'Fees';
-                    document.getElementById('paymentsSheet').value = config.sheets.payments || 'Payments';
-                    document.getElementById('receiptsSheet').value = config.sheets.receipts || 'Receipts';
-                }
-            }
-            return GOOGLE_SHEETS_CONFIG.isConfigured;
-        }
-
-        function saveSheetsConfig() {
-            const apiKey = document.getElementById('sheetsApiKey').value.trim();
-            const sheetId = document.getElementById('sheetId').value.trim();
-            
-            if (!apiKey || !sheetId) {
-                toastr.error('Please enter API Key and Sheet ID');
-                return;
-            }
-            
-            GOOGLE_SHEETS_CONFIG.apiKey = apiKey;
-            GOOGLE_SHEETS_CONFIG.sheetId = sheetId;
-            GOOGLE_SHEETS_CONFIG.sheets.students = document.getElementById('studentsSheet').value;
-            GOOGLE_SHEETS_CONFIG.sheets.fees = document.getElementById('feesSheet').value;
-            GOOGLE_SHEETS_CONFIG.sheets.payments = document.getElementById('paymentsSheet').value;
-            GOOGLE_SHEETS_CONFIG.sheets.receipts = document.getElementById('receiptsSheet').value;
-            GOOGLE_SHEETS_CONFIG.isConfigured = true;
-            
-            localStorage.setItem('hfps_sheets_config', JSON.stringify(GOOGLE_SHEETS_CONFIG));
-            toastr.success('Google Sheets configuration saved successfully');
-            closeSheetsConfig();
-        }
-
-        function showSheetsConfig() {
-    const modalContent = `
-        <div class="form-container">
-            <h3><i class="fab fa-google"></i> Google Sheets Configuration</h3>
-            <div class="info-box mb-3">
-                <i class="fas fa-info-circle"></i>
-                <div>
-                    <p><strong>Setup Instructions:</strong></p>
-                    <ol style="margin-left: 20px; margin-top: 10px;">
-                        <li>Create a Google Sheet</li>
-                        <li>Click "Share" and set to "Anyone with the link can edit"</li>
-                        <li>Copy the Sheet ID from the URL</li>
-                        <li>Get API key from Google Cloud Console</li>
-                        <li>Configure below</li>
-                    </ol>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="sheetsApiKey">Google Sheets API Key *</label>
-                <input type="password" id="sheetsApiKey" placeholder="Enter your Google Sheets API Key" required>
-                <small>Get API key from Google Cloud Console</small>
-            </div>
-            
-            <div class="form-group">
-                <label for="sheetId">Google Sheet ID *</label>
-                <input type="text" id="sheetId" placeholder="Enter your Google Sheet ID" required>
-                <small>From URL: https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</small>
-            </div>
-            
-            <div class="form-actions">
-                <button class="btn btn-success" onclick="testSheetsConnection()">
-                    <i class="fas fa-plug"></i> Test Connection
-                </button>
-                <button class="btn btn-primary" onclick="saveSheetsConfig()">
-                    <i class="fas fa-save"></i> Save Configuration
-                </button>
-                <button class="btn btn-secondary" onclick="closeModal()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-            </div>
-        </div>
-    `;
-    
-    showModal('Google Sheets Configuration', modalContent);
-}
-
-        function closeSheetsConfig() {
-            document.getElementById('sheetsConfigModal').classList.remove('active');
-            document.getElementById('sheetsTestResult').style.display = 'none';
-        }
-
-        async function testSheetsConnection() {
-            const apiKey = document.getElementById('sheetsApiKey').value.trim();
-            const sheetId = document.getElementById('sheetId').value.trim();
-            
-            if (!apiKey || !sheetId) {
-                toastr.error('Please enter API Key and Sheet ID');
-                return;
-            }
-            
-            const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`;
-            
-            try {
-                const response = await fetch(testUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    const resultDiv = document.getElementById('sheetsTestResult');
-                    resultDiv.innerHTML = `
-                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 5px; border-left: 4px solid #4caf50;">
-                            <i class="fas fa-check-circle"></i> 
-                            <strong>Connection Successful!</strong>
-                            <p>Connected to: <strong>${data.properties.title}</strong></p>
-                            <p>Google Sheets connection established successfully.</p>
-                        </div>
-                    `;
-                    resultDiv.style.display = 'block';
-                    toastr.success('Connection to Google Sheets successful');
-                } else {
-                    throw new Error('Connection failed');
-                }
-            } catch (error) {
-                const resultDiv = document.getElementById('sheetsTestResult');
-                resultDiv.innerHTML = `
-                    <div style="background: #ffebee; padding: 1rem; border-radius: 5px; border-left: 4px solid #f44336;">
-                        <i class="fas fa-times-circle"></i> 
-                        <strong>Connection Failed!</strong>
-                        <p>Unable to connect to Google Sheets. Please check your API Key and Sheet ID.</p>
-                        <p><small>Error: ${error.message}</small></p>
-                    </div>
-                `;
-                resultDiv.style.display = 'block';
-                toastr.error('Connection to Google Sheets failed');
-            }
-        }
-
-        // ============================================
-        // GOOGLE SHEETS DATA FUNCTIONS
-        // ============================================
-
-        async function saveToGoogleSheets(dataType, data) {
-            if (!GOOGLE_SHEETS_CONFIG.isConfigured) {
-                console.warn('Google Sheets not configured. Data saved locally only.');
-                return false;
-            }
-            
-            const sheetName = GOOGLE_SHEETS_CONFIG.sheets[dataType];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_CONFIG.sheetId}/values/${sheetName}!A:Z?valueInputOption=RAW&key=${GOOGLE_SHEETS_CONFIG.apiKey}`;
-            
-            try {
-                // First, get current data to determine next row
-                const response = await fetch(url);
-                const currentData = await response.json();
-                
-                let nextRow = 1;
-                if (currentData.values) {
-                    nextRow = currentData.values.length + 1;
-                } else {
-                    // Sheet is empty, add headers
-                    const headers = getHeadersForSheet(dataType);
-                    await updateSheet(sheetName, 'A1', [headers]);
-                    nextRow = 2;
-                }
-                
-                // Convert data to rows
-                const rows = Array.isArray(data) ? 
-                    data.map(item => convertToRow(item, dataType)) : 
-                    [convertToRow(data, dataType)];
-                
-                // Append data to sheet
-                await updateSheet(sheetName, `A${nextRow}`, rows);
-                
-                console.log(`Data saved to Google Sheets: ${dataType}`);
-                return true;
-            } catch (error) {
-                console.error('Error saving to Google Sheets:', error);
-                toastr.warning(`Failed to save ${dataType} to Google Sheets. Data saved locally only.`);
-                return false;
-            }
-        }
-
-        async function updateSheet(sheetName, range, values) {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_CONFIG.sheetId}/values/${sheetName}!${range}?valueInputOption=USER_ENTERED&key=${GOOGLE_SHEETS_CONFIG.apiKey}`;
-            
-            const response = await fetch(url, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    values: values
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error(`Failed to update sheet: ${response.status}`);
-            }
-            
-            return await response.json();
-        }
-
-        async function loadFromGoogleSheets(dataType) {
-            if (!GOOGLE_SHEETS_CONFIG.isConfigured) {
-                console.warn('Google Sheets not configured. Loading from local storage.');
-                return [];
-            }
-            
-            const sheetName = GOOGLE_SHEETS_CONFIG.sheets[dataType];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_CONFIG.sheetId}/values/${sheetName}!A:Z?key=${GOOGLE_SHEETS_CONFIG.apiKey}`;
-            
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Failed to load from Google Sheets');
-                }
-                
-                const data = await response.json();
-                if (!data.values || data.values.length < 2) {
-                    console.log(`No data found in Google Sheets for ${dataType}`);
-                    return [];
-                }
-                
-                const headers = data.values[0];
-                const rows = data.values.slice(1);
-                
-                return rows.map(row => convertFromRow(row, headers, dataType));
-            } catch (error) {
-                console.error('Error loading from Google Sheets:', error);
-                toastr.warning(`Failed to load ${dataType} from Google Sheets. Using local data.`);
-                return [];
-            }
-        }
-
-        function getHeadersForSheet(dataType) {
-            switch(dataType) {
-                case 'students':
-                    return ['ID', 'Full Name', 'Gender', 'Class', 'Term', 'Year', 'Parent Phone', 'Balance', 'Status', 'Created At', 'Updated At'];
-                case 'fees':
-                    return ['Class', 'Term', 'Year', 'Daily Fee', 'Term Fee', 'Updated At', 'Updated By'];
-                case 'payments':
-                    return ['ID', 'Receipt No', 'Date', 'Time', 'Student ID', 'Student Name', 'Class', 'Amount', 'Payment Method', 'Receiver', 'Balance Before', 'Balance After', 'Notes', 'MoMo Number', 'Bank Reference', 'Created At'];
-                case 'receipts':
-                    return ['Receipt No', 'Date', 'Student Name', 'Class', 'Amount', 'Payment Method', 'Receiver', 'Balance After'];
-                default:
-                    return [];
-            }
-        }
-
-        function convertToRow(data, dataType) {
-            switch(dataType) {
-                case 'students':
-                    return [
-                        data.id || '',
-                        data.name || '',
-                        data.gender || '',
-                        data.class || '',
-                        data.term || '',
-                        data.year || '',
-                        data.parentPhone || '',
-                        data.balance || 0,
-                        data.status || 'active',
-                        data.createdAt || new Date().toISOString(),
-                        data.updatedAt || new Date().toISOString()
-                    ];
-                case 'fees':
-                    return [
-                        data.class || '',
-                        data.term || '',
-                        data.year || '',
-                        data.dailyFee || 0,
-                        data.termFee || 0,
-                        data.updatedAt || new Date().toISOString(),
-                        data.updatedBy || 'System'
-                    ];
-                case 'payments':
-                    return [
-                        data.id || '',
-                        data.receiptNo || '',
-                        data.date || '',
-                        data.time || '',
-                        data.studentId || '',
-                        data.studentName || '',
-                        data.class || '',
-                        data.amount || 0,
-                        data.method || '',
-                        data.receiver || '',
-                        data.balanceBefore || 0,
-                        data.balanceAfter || 0,
-                        data.notes || '',
-                        data.momoNumber || '',
-                        data.bankReference || '',
-                        data.createdAt || new Date().toISOString()
-                    ];
-                case 'receipts':
-                    return [
-                        data.receiptNo || '',
-                        data.date || '',
-                        data.studentName || '',
-                        data.class || '',
-                        data.amount || 0,
-                        data.method || '',
-                        data.receiver || '',
-                        data.balanceAfter || 0
-                    ];
-                default:
-                    return [];
-            }
-        }
-
-        function convertFromRow(row, headers, dataType) {
-            const obj = {};
-            headers.forEach((header, index) => {
-                if (index < row.length) {
-                    const key = header.toLowerCase().replace(/ /g, '_');
-                    obj[key] = row[index];
-                }
-            });
-            
-            // Convert numeric fields
-            if (dataType === 'students') {
-                obj.balance = parseFloat(obj.balance) || 0;
-            } else if (dataType === 'fees') {
-                obj.daily_fee = parseFloat(obj.daily_fee) || 0;
-                obj.term_fee = parseFloat(obj.term_fee) || 0;
-            } else if (dataType === 'payments') {
-                obj.amount = parseFloat(obj.amount) || 0;
-                obj.balance_before = parseFloat(obj.balance_before) || 0;
-                obj.balance_after = parseFloat(obj.balance_after) || 0;
-            }
-            
-            return obj;
-        }
-
-        // ============================================
         // APPLICATION CONFIGURATION & INITIALIZATION
         // ============================================
         
@@ -2943,19 +2580,33 @@
         let fees = [];
         let payments = [];
 
+        // Google Sheets Configuration
+        const GOOGLE_SHEETS_CONFIG = {
+            apiKey: '',
+            sheetId: '',
+            sheets: {
+                students: 'Students',
+                fees: 'Fees',
+                payments: 'Payments',
+                receipts: 'Receipts'
+            },
+            isConfigured: false
+        };
+
         // Initialize the application
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Load Google Sheets configuration first
-            const sheetsConfigured = loadSheetsConfig();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load configuration
+            loadSheetsConfig();
             
-            // Initialize the rest of the app
+            // Initialize the app
             initializeApp();
             setupEventListeners();
             
-            // Load data (from Google Sheets if configured, otherwise from localStorage)
-            if (sheetsConfigured) {
-                await loadAllDataFromSheets();
-            } else {
+            // Load data
+            loadFromLocalStorage();
+            
+            // Load sample data if empty
+            if (students.length === 0 && fees.length === 0 && payments.length === 0) {
                 loadSampleData();
             }
             
@@ -2963,9 +2614,6 @@
         });
 
         function initializeApp() {
-            // Load data from localStorage (as backup)
-            loadFromLocalStorage();
-            
             // Set current date in all date inputs
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('paymentDate').value = today;
@@ -3053,165 +2701,88 @@
             }
         }
 
-        async function loadAllDataFromSheets() {
-            if (!GOOGLE_SHEETS_CONFIG.isConfigured) {
-                toastr.error('Please configure Google Sheets first');
+        function loadSheetsConfig() {
+            const savedConfig = localStorage.getItem('hfps_sheets_config');
+            if (savedConfig) {
+                const config = JSON.parse(savedConfig);
+                Object.assign(GOOGLE_SHEETS_CONFIG, config);
+                GOOGLE_SHEETS_CONFIG.isConfigured = !!(config.apiKey && config.sheetId);
+            }
+            return GOOGLE_SHEETS_CONFIG.isConfigured;
+        }
+
+        function saveSheetsConfig() {
+            const apiKey = document.getElementById('sheetsApiKey').value.trim();
+            const sheetId = document.getElementById('sheetId').value.trim();
+            
+            if (!apiKey || !sheetId) {
+                toastr.error('Please enter API Key and Sheet ID');
                 return;
             }
             
-            toastr.info('Loading data from Google Sheets...');
+            GOOGLE_SHEETS_CONFIG.apiKey = apiKey;
+            GOOGLE_SHEETS_CONFIG.sheetId = sheetId;
+            GOOGLE_SHEETS_CONFIG.sheets.students = document.getElementById('studentsSheet').value;
+            GOOGLE_SHEETS_CONFIG.sheets.fees = document.getElementById('feesSheet').value;
+            GOOGLE_SHEETS_CONFIG.sheets.payments = document.getElementById('paymentsSheet').value;
+            GOOGLE_SHEETS_CONFIG.sheets.receipts = document.getElementById('receiptsSheet').value;
+            GOOGLE_SHEETS_CONFIG.isConfigured = true;
             
-            try {
-                // Load students
-                const loadedStudents = await loadFromGoogleSheets('students');
-                if (loadedStudents.length > 0) {
-                    students = loadedStudents.map(s => ({
-                        id: s.id,
-                        name: s.full_name || s.name,
-                        gender: s.gender,
-                        class: s.class,
-                        term: s.term,
-                        year: s.year,
-                        parentPhone: s.parent_phone || s.parentPhone,
-                        balance: s.balance || 0,
-                        status: s.status || 'active',
-                        createdAt: s.created_at || s.createdAt,
-                        updatedAt: s.updated_at || s.updatedAt
-                    }));
-                }
-                
-                // Load fees
-                const loadedFees = await loadFromGoogleSheets('fees');
-                if (loadedFees.length > 0) {
-                    fees = loadedFees.map(f => ({
-                        class: f.class,
-                        term: f.term,
-                        year: f.year,
-                        dailyFee: f.daily_fee || f.dailyFee,
-                        termFee: f.term_fee || f.termFee,
-                        updatedAt: f.updated_at || f.updatedAt,
-                        updatedBy: f.updated_by || f.updatedBy
-                    }));
-                }
-                
-                // Load payments
-                const loadedPayments = await loadFromGoogleSheets('payments');
-                if (loadedPayments.length > 0) {
-                    payments = loadedPayments.map(p => ({
-                        id: p.id,
-                        receiptNo: p.receipt_no || p.receiptNo,
-                        date: p.date,
-                        time: p.time,
-                        studentId: p.student_id || p.studentId,
-                        studentName: p.student_name || p.studentName,
-                        class: p.class,
-                        amount: p.amount,
-                        method: p.payment_method || p.method,
-                        receiver: p.receiver,
-                        balanceBefore: p.balance_before || p.balanceBefore,
-                        balanceAfter: p.balance_after || p.balanceAfter,
-                        notes: p.notes,
-                        momoNumber: p.momo_number || p.momoNumber,
-                        bankReference: p.bank_reference || p.bankReference,
-                        createdAt: p.created_at || p.createdAt
-                    }));
-                    
-                    // Update last receipt number
-                    if (payments.length > 0) {
-                        const lastReceipt = payments.reduce((max, p) => {
-                            const num = parseInt(p.receiptNo.replace('RCPT', ''));
-                            return num > max ? num : max;
-                        }, 0);
-                        appState.lastReceiptNumber = lastReceipt;
-                    }
-                }
-                
-                // Save to localStorage as backup
-                saveToLocalStorage();
-                
-                // Update UI
-                updateDashboard();
-                loadPage(appState.currentPage);
-                
-                toastr.success('Data loaded from Google Sheets successfully');
-            } catch (error) {
-                console.error('Error loading from Google Sheets:', error);
-                toastr.error('Failed to load data from Google Sheets. Loading from local storage.');
-                loadFromLocalStorage();
-            }
+            localStorage.setItem('hfps_sheets_config', JSON.stringify(GOOGLE_SHEETS_CONFIG));
+            toastr.success('Google Sheets configuration saved successfully');
+            closeSheetsConfig();
         }
 
-        async function syncAllDataToSheets() {
-            if (!GOOGLE_SHEETS_CONFIG.isConfigured) {
-                toastr.error('Please configure Google Sheets first');
+        function showSheetsConfig() {
+            document.getElementById('sheetsConfigModal').classList.add('active');
+        }
+
+        function closeSheetsConfig() {
+            document.getElementById('sheetsConfigModal').classList.remove('active');
+            document.getElementById('sheetsTestResult').style.display = 'none';
+        }
+
+        async function testSheetsConnection() {
+            const apiKey = document.getElementById('sheetsApiKey').value.trim();
+            const sheetId = document.getElementById('sheetId').value.trim();
+            
+            if (!apiKey || !sheetId) {
+                toastr.error('Please enter API Key and Sheet ID');
                 return;
             }
             
-            toastr.info('Syncing data to Google Sheets...');
+            const testUrl = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}?key=${apiKey}`;
             
             try {
-                // Clear existing sheets data first (optional - you might want to append instead)
-                // For now, we'll clear and re-upload
-                
-                // Sync students
-                if (students.length > 0) {
-                    // Clear existing data
-                    await clearSheet('students');
-                    // Add headers
-                    const headers = getHeadersForSheet('students');
-                    await updateSheet(GOOGLE_SHEETS_CONFIG.sheets.students, 'A1', [headers]);
-                    // Add all students
-                    const studentRows = students.map(s => convertToRow(s, 'students'));
-                    if (studentRows.length > 0) {
-                        await updateSheet(GOOGLE_SHEETS_CONFIG.sheets.students, 'A2', studentRows);
-                    }
+                const response = await fetch(testUrl);
+                if (response.ok) {
+                    const data = await response.json();
+                    const resultDiv = document.getElementById('sheetsTestResult');
+                    resultDiv.innerHTML = `
+                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 5px; border-left: 4px solid #4caf50;">
+                            <i class="fas fa-check-circle"></i> 
+                            <strong>Connection Successful!</strong>
+                            <p>Connected to: <strong>${data.properties.title}</strong></p>
+                            <p>Google Sheets connection established successfully.</p>
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                    toastr.success('Connection to Google Sheets successful');
+                } else {
+                    throw new Error('Connection failed');
                 }
-                
-                // Sync fees
-                if (fees.length > 0) {
-                    await clearSheet('fees');
-                    const headers = getHeadersForSheet('fees');
-                    await updateSheet(GOOGLE_SHEETS_CONFIG.sheets.fees, 'A1', [headers]);
-                    const feeRows = fees.map(f => convertToRow(f, 'fees'));
-                    if (feeRows.length > 0) {
-                        await updateSheet(GOOGLE_SHEETS_CONFIG.sheets.fees, 'A2', feeRows);
-                    }
-                }
-                
-                // Sync payments
-                if (payments.length > 0) {
-                    await clearSheet('payments');
-                    const headers = getHeadersForSheet('payments');
-                    await updateSheet(GOOGLE_SHEETS_CONFIG.sheets.payments, 'A1', [headers]);
-                    const paymentRows = payments.map(p => convertToRow(p, 'payments'));
-                    if (paymentRows.length > 0) {
-                        await updateSheet(GOOGLE_SHEETS_CONFIG.sheets.payments, 'A2', paymentRows);
-                    }
-                }
-                
-                toastr.success('All data synced to Google Sheets successfully');
             } catch (error) {
-                console.error('Error syncing to Google Sheets:', error);
-                toastr.error('Failed to sync data to Google Sheets');
-            }
-        }
-
-        async function clearSheet(dataType) {
-            const sheetName = GOOGLE_SHEETS_CONFIG.sheets[dataType];
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEETS_CONFIG.sheetId}/values/${sheetName}!A:Z?key=${GOOGLE_SHEETS_CONFIG.apiKey}`;
-            
-            try {
-                await fetch(url, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        values: []
-                    })
-                });
-            } catch (error) {
-                console.error(`Error clearing sheet ${sheetName}:`, error);
+                const resultDiv = document.getElementById('sheetsTestResult');
+                resultDiv.innerHTML = `
+                    <div style="background: #ffebee; padding: 1rem; border-radius: 5px; border-left: 4px solid #f44336;">
+                        <i class="fas fa-times-circle"></i> 
+                        <strong>Connection Failed!</strong>
+                        <p>Unable to connect to Google Sheets. Please check your API Key and Sheet ID.</p>
+                        <p><small>Error: ${error.message}</small></p>
+                    </div>
+                `;
+                resultDiv.style.display = 'block';
+                toastr.error('Connection to Google Sheets failed');
             }
         }
 
@@ -3440,7 +3011,7 @@
             document.getElementById('studentForm').reset();
         }
 
-        async function saveStudent(event) {
+        function saveStudent(event) {
             event.preventDefault();
             
             const studentId = 'STD' + String(students.length + 1001).padStart(4, '0');
@@ -3471,9 +3042,8 @@
             
             students.push(newStudent);
             
-            // Save to both localStorage and Google Sheets
+            // Save to localStorage
             saveToLocalStorage();
-            await saveToGoogleSheets('students', newStudent);
             
             hideAddStudentForm();
             loadStudents();
@@ -3736,7 +3306,7 @@
             ]);
         }
 
-        async function updateStudent(studentId) {
+        function updateStudent(studentId) {
             const studentIndex = students.findIndex(s => s.id === studentId);
             if (studentIndex === -1) {
                 toastr.error('Student not found');
@@ -3759,9 +3329,7 @@
             
             students[studentIndex] = updatedStudent;
             
-            // Save to both localStorage and Google Sheets
             saveToLocalStorage();
-            await saveToGoogleSheets('students', updatedStudent);
             
             loadStudents();
             updateDashboard();
@@ -3770,7 +3338,7 @@
             toastr.success('Student updated successfully');
         }
 
-        async function archiveStudent(studentId) {
+        function archiveStudent(studentId) {
             if (confirm('Are you sure you want to archive this student? They will be hidden from active lists.')) {
                 const studentIndex = students.findIndex(s => s.id === studentId);
                 if (studentIndex !== -1) {
@@ -3779,7 +3347,6 @@
                     students[studentIndex].updatedAt = new Date().toISOString();
                     
                     saveToLocalStorage();
-                    await saveToGoogleSheets('students', students[studentIndex]);
                     
                     loadStudents();
                     toastr.success('Student archived successfully');
@@ -3955,7 +3522,7 @@
             return fee ? fee.termFee : 0;
         }
 
-        async function saveFees(event) {
+        function saveFees(event) {
             event.preventDefault();
             
             const classFees = {
@@ -3986,9 +3553,7 @@
             // Update student balances if term fee changed
             updateStudentBalances(classFees);
             
-            // Save to both localStorage and Google Sheets
             saveToLocalStorage();
-            await saveToGoogleSheets('fees', classFees);
             
             document.getElementById('feesForm').reset();
             loadFeesTable();
@@ -4011,10 +3576,6 @@
             
             if (affectedStudents.length > 0) {
                 toastr.info(`Updated balances for ${affectedStudents.length} student(s)`);
-                // Save updated students to Google Sheets
-                affectedStudents.forEach(async student => {
-                    await saveToGoogleSheets('students', student);
-                });
             }
         }
 
@@ -4083,7 +3644,7 @@
             document.getElementById('feeClass').scrollIntoView({ behavior: 'smooth' });
         }
 
-        async function deleteFees(className, term, year) {
+        function deleteFees(className, term, year) {
             if (confirm(`Delete fees for ${className} - ${term} ${year}?`)) {
                 const index = fees.findIndex(f => 
                     f.class === className && f.term === term && f.year === year
@@ -4092,9 +3653,8 @@
                 if (index !== -1) {
                     fees.splice(index, 1);
                     saveToLocalStorage();
-                    // Note: We cannot delete from Google Sheets without API, so we just clear local
                     loadFeesTable();
-                    toastr.success('Fees deleted successfully (local only)');
+                    toastr.success('Fees deleted successfully');
                 }
             }
         }
@@ -4235,7 +3795,7 @@
             }
         }
 
-        async function processPayment(event) {
+        function processPayment(event) {
             event.preventDefault();
             
             if (!appState.selectedStudent) {
@@ -4303,12 +3863,8 @@
             // Add payment to records
             payments.push(payment);
             
-            // Save to both localStorage and Google Sheets
+            // Save to localStorage
             saveToLocalStorage();
-            await Promise.all([
-                saveToGoogleSheets('payments', payment),
-                saveToGoogleSheets('students', students[studentIndex])
-            ]);
             
             // Generate A4 receipt
             generateA4Receipt(payment);
@@ -5629,16 +5185,10 @@
                         <div class="form-group">
                             <label>Academic Year</label>
                             <select id="currentAcademicYear" class="w-100">
-                                <option value="2025/2026">2025/2026</option>
-                                <option value="2026/2027" selected>2026/2027</option>
-                                <option value="2027/2028">2027/2028</option>
-                                <option value="2028/2029">2028/2029</option>
-                                <option value="2028/2029">2029/2030</option>
-                                <option value="2028/2029">2030/2031</option>
-                                <option value="2028/2029">2031/2032</option>
-                                <option value="2028/2029">2032/2033</option>
-                                <option value="2028/2029">2033/2034</option>
-                                
+                                <option value="2024">2024</option>
+                                <option value="2025" selected>2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
                             </select>
                         </div>
                     </div>
@@ -5649,14 +5199,6 @@
                             <button class="btn btn-primary w-100 mb-2" onclick="showSheetsConfig()">
                                 <i class="fas fa-cog"></i> Configure Google Sheets
                             </button>
-                            ${GOOGLE_SHEETS_CONFIG.isConfigured ? `
-                                <button class="btn btn-success w-100 mb-2" onclick="syncAllDataToSheets()">
-                                    <i class="fas fa-sync"></i> Sync All Data to Sheets
-                                </button>
-                                <button class="btn btn-secondary w-100 mb-2" onclick="loadAllDataFromSheets()">
-                                    <i class="fas fa-download"></i> Load All Data from Sheets
-                                </button>
-                            ` : ''}
                         </div>
                     </div>
                     
@@ -5684,7 +5226,7 @@
                         <div class="info-box">
                             <i class="fas fa-info-circle"></i>
                             <div>
-                                <p><strong>Version:</strong> 2.0.0 (Google Sheets Integrated)</p>
+                                <p><strong>Version:</strong> 2.0.0 (Local Storage)</p>
                                 <p><strong>Last Backup:</strong> ${new Date().toLocaleString()}</p>
                                 <p><strong>Storage Used:</strong> ${Math.round(JSON.stringify(localStorage).length / 1024)} KB</p>
                             </div>
@@ -5906,27 +5448,6 @@
                 toastr.info('Welcome to HFPS Fees Collection System v2.0! Sample data has been loaded.');
             }, 1000);
         }
-        // Add System Admin button to header
-function addSystemAdminButton() {
-    const userInfo = document.querySelector('.user-info');
-    if (userInfo && !document.querySelector('.system-admin-btn')) {
-        const adminBtn = document.createElement('button');
-        adminBtn.className = 'logout-btn system-admin-btn';
-        adminBtn.style.marginLeft = '10px';
-        adminBtn.title = 'System Admin';
-        adminBtn.innerHTML = '<i class="fas fa-cogs"></i>';
-        adminBtn.onclick = showSystemAdmin;
-        
-        userInfo.appendChild(adminBtn);
-    }
-}
-        // Call this after page loads
-document.addEventListener('DOMContentLoaded', function() {
-    addSystemAdminButton();
     </script>
 </body>
 </html>
-
-
-
-
