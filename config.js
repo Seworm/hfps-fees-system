@@ -6,10 +6,10 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwU9qtOn56ELFI24Gnlu
 // School Information
 const SCHOOL_INFO = {
     name: 'HOME FIELD PREPARATORY SCHOOL',
-    address: 'P.O. Box KT 123, Kumasi, Ghana',
-    phone: '+233 24 123 4567',
-    email: 'info@homefieldprep.edu.gh',
-    motto: 'Excellence in Basic Education'
+    address: '24 HILLS, BEHIND ASSEMBLIES OF GOD CHURCH',
+    phone: '+23324 354 8843',
+    email: '',
+    motto: 'Learners Today, Leaders Tomorrow'
 };
 
 // Class List (Must match Google Sheets)
@@ -34,7 +34,7 @@ const CLASSES = [
 const ACADEMIC_TERMS = ['Term 1', 'Term 2', 'Term 3'];
 
 // Academic Years (Next 5 years)
-const ACADEMIC_YEARS = ['2024', '2025', '2026', '2027', '2028'];
+const ACADEMIC_YEARS = ['2025/2025', '2026/2027', '2027/2028', '2028/2029', '2029/2030'];
 
 // Payment Methods
 const PAYMENT_METHODS = ['Cash', 'MoMo', 'Bank', 'Cheque'];
@@ -198,20 +198,20 @@ async function mockAPI(method, params) {
             } else {
                 // Default fees based on class
                 const defaultFees = {
-                    'Crèche': { daily: 5, term: 300 },
-                    'Nursery 1': { daily: 6, term: 350 },
-                    'Nursery 2': { daily: 7, term: 400 },
-                    'Kindergarten 1': { daily: 8, term: 450 },
-                    'Kindergarten 2': { daily: 9, term: 500 },
-                    'Basic 1': { daily: 10, term: 550 },
-                    'Basic 2': { daily: 11, term: 600 },
-                    'Basic 3': { daily: 12, term: 650 },
-                    'Basic 4': { daily: 13, term: 700 },
-                    'Basic 5': { daily: 14, term: 750 },
-                    'Basic 6': { daily: 15, term: 800 },
-                    'JHS 1': { daily: 16, term: 850 },
-                    'JHS 2': { daily: 17, term: 900 },
-                    'JHS 3': { daily: 18, term: 950 }
+                    'Crèche': { daily: 15},
+                    'Nursery 1': { daily: 15},
+                    'Nursery 2': { daily: 15 },
+                    'Kindergarten 1': { daily: 15},
+                    'Kindergarten 2': { daily: 15},
+                    'Basic 1': { daily: 15},
+                    'Basic 2': { daily: 15},
+                    'Basic 3': { daily: 15 },
+                    'Basic 4': { daily: 15},
+                    'Basic 5': { daily: 15},
+                    'Basic 6': { daily: 15},
+                    'JHS 1': { daily: 16},
+                    'JHS 2': { daily: 16 },
+                    'JHS 3': { daily: 16}
                 };
                 
                 const defaults = defaultFees[params.class] || { daily: 0, term: 0 };
@@ -308,4 +308,5 @@ async function mockAPI(method, params) {
         default:
             return { success: false, message: 'Method not implemented in mock API' };
     }
+
 }
