@@ -1,0 +1,71 @@
+<div id="receipts" class="page">
+    <h2 class="page-title">
+        <i class="fas fa-receipt"></i> Receipt Management
+    </h2>
+    
+    <div class="page-controls">
+        <div class="search-box">
+            <input type="text" id="searchReceipts" placeholder="Search receipts by number, student name or ID...">
+            <i class="fas fa-search"></i>
+        </div>
+        <select id="receiptDateFilter">
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="all">All Time</option>
+        </select>
+        <button class="btn btn-primary" onclick="searchReceipts()">
+            <i class="fas fa-search"></i> Search
+        </button>
+    </div>
+    
+    <!-- Receipts Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Receipt No.</th>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Class</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Receiver</th>
+                    <th>Balance</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="receiptsTable">
+                <tr>
+                    <td colspan="9">Loading receipts...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Receipt Preview Modal -->
+    <div id="receiptModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-receipt"></i> Receipt Preview</h3>
+                <button class="close-modal" onclick="closeReceiptModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="receiptPreview">
+                    <!-- Receipt will be loaded here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="printReceiptFromModal()">
+                    <i class="fas fa-print"></i> Print Receipt
+                </button>
+                <button class="btn btn-secondary" onclick="downloadReceiptPDF()">
+                    <i class="fas fa-download"></i> Download PDF
+                </button>
+                <button class="btn btn-secondary" onclick="closeReceiptModal()">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

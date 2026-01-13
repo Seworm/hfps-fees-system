@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Field Preparatory School - Fees Collection System</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-container">
+                <div class="logo">
+                    <i class="fas fa-school"></i>
+                    <h1>HOME FIELD PREPARATORY SCHOOL</h1>
+                </div>
+                <p class="tagline">Excellence in Basic Education</p>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <span class="username">Administrator</span>
+                    <span class="role">School Bursar</span>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <nav class="sidebar">
+                <ul class="nav-menu">
+                    <li class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li class="nav-item" data-page="students">
+                        <i class="fas fa-users"></i>
+                        <span>Student Management</span>
+                    </li>
+                    <li class="nav-item" data-page="fees">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>Fees Setup</span>
+                    </li>
+                    <li class="nav-item" data-page="payments">
+                        <i class="fas fa-credit-card"></i>
+                        <span>Collect Fees</span>
+                    </li>
+                    <li class="nav-item" data-page="receipts">
+                        <i class="fas fa-receipt"></i>
+                        <span>Receipts</span>
+                    </li>
+                    <li class="nav-item" data-page="reports">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Reports</span>
+                    </li>
+                    <li class="nav-item" data-page="daily-summary">
+                        <i class="fas fa-calendar-day"></i>
+                        <span>Daily Summary</span>
+                    </li>
+                </ul>
+                
+                <div class="system-status">
+                    <div class="status-indicator online"></div>
+                    <span>System Online</span>
+                    <div class="current-date" id="currentDate"></div>
+                </div>
+            </nav>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <div id="dashboard" class="page active">
+                    <h2 class="page-title">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard Overview
+                    </h2>
+                    
+                    <!-- Stats Cards -->
+                    <div class="stats-container">
+                        <div class="stat-card total-students">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Students</h3>
+                                <p class="stat-number" id="totalStudents">0</p>
+                                <p class="stat-change">Active enrollments</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card today-collection">
+                            <div class="stat-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Today's Collection</h3>
+                                <p class="stat-number" id="todayCollection">₵ 0.00</p>
+                                <p class="stat-change" id="todayPayments">0 payments today</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card total-collected">
+                            <div class="stat-icon">
+                                <i class="fas fa-piggy-bank"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Total Collected</h3>
+                                <p class="stat-number" id="totalCollected">₵ 0.00</p>
+                                <p class="stat-change">All-time collection</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card outstanding">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>Outstanding</h3>
+                                <p class="stat-number" id="totalOutstanding">₵ 0.00</p>
+                                <p class="stat-change">Balance to collect</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3>Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button class="action-btn" onclick="loadPage('payments')">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Collect Payment</span>
+                            </button>
+                            <button class="action-btn" onclick="loadPage('students')">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Add New Student</span>
+                            </button>
+                            <button class="action-btn" onclick="loadPage('daily-summary')">
+                                <i class="fas fa-file-invoice"></i>
+                                <span>Daily Summary</span>
+                            </button>
+                            <button class="action-btn" onclick="generateReport('daily')">
+                                <i class="fas fa-print"></i>
+                                <span>Print Report</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Payments -->
+                    <div class="recent-payments">
+                        <h3>Recent Payments</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Time</th>
+                                        <th>Student</th>
+                                        <th>Class</th>
+                                        <th>Amount</th>
+                                        <th>Method</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentPaymentsTable">
+                                    <tr>
+                                        <td colspan="6">Loading recent payments...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Class Distribution -->
+                    <div class="class-distribution">
+                        <h3>Students by Class</h3>
+                        <div class="distribution-container" id="classDistribution">
+                            <!-- Will be populated by JavaScript -->
+                            <div class="loading">Loading distribution data...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Other pages will be loaded dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

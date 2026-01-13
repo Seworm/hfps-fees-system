@@ -1,0 +1,166 @@
+<div id="daily-summary" class="page">
+    <h2 class="page-title">
+        <i class="fas fa-calendar-day"></i> End-of-Day Summary
+    </h2>
+    
+    <div class="summary-controls">
+        <div class="date-selector">
+            <label for="summaryDate">Select Date:</label>
+            <input type="date" id="summaryDate" value="<?php echo date('Y-m-d'); ?>">
+            <button class="btn btn-primary" onclick="loadDailySummary()">
+                <i class="fas fa-sync"></i> Load Summary
+            </button>
+        </div>
+        
+        <div class="summary-actions">
+            <button class="btn btn-success" onclick="printDailySummary()">
+                <i class="fas fa-print"></i> Print Summary
+            </button>
+            <button class="btn btn-secondary" onclick="exportDailySummaryPDF()">
+                <i class="fas fa-download"></i> Download PDF
+            </button>
+            <button class="btn btn-primary" onclick="sendDailyReport()">
+                <i class="fas fa-paper-plane"></i> Email Report
+            </button>
+        </div>
+    </div>
+    
+    <!-- Daily Summary Cards -->
+    <div class="daily-summary-cards" id="dailySummaryCards">
+        <div class="summary-card total-collected">
+            <div class="card-icon">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+            <div class="card-content">
+                <h3>Total Collected Today</h3>
+                <p class="card-value" id="dailyTotalCollected">₵ 0.00</p>
+                <p class="card-subtitle" id="dailyTotalPayments">0 payments</p>
+            </div>
+        </div>
+        
+        <div class="summary-card students-paid">
+            <div class="card-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="card-content">
+                <h3>Students Paid</h3>
+                <p class="card-value" id="dailyStudentsPaid">0</p>
+                <p class="card-subtitle">Made payments today</p>
+            </div>
+        </div>
+        
+        <div class="summary-card students-unpaid">
+            <div class="card-icon">
+                <i class="fas fa-user-times"></i>
+            </div>
+            <div class="card-content">
+                <h3>Students Unpaid</h3>
+                <p class="card-value" id="dailyStudentsUnpaid">0</p>
+                <p class="card-subtitle">No payment today</p>
+            </div>
+        </div>
+        
+        <div class="summary-card outstanding-balance">
+            <div class="card-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="card-content">
+                <h3>Outstanding Balance</h3>
+                <p class="card-value" id="dailyOutstanding">₵ 0.00</p>
+                <p class="card-subtitle">Total to collect</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Detailed Summary -->
+    <div class="detailed-summary">
+        <div class="summary-tabs">
+            <button class="tab-btn active" onclick="showSummaryTab('paid')">
+                <i class="fas fa-user-check"></i> Paid Students
+            </button>
+            <button class="tab-btn" onclick="showSummaryTab('unpaid')">
+                <i class="fas fa-user-times"></i> Unpaid Students
+            </button>
+            <button class="tab-btn" onclick="showSummaryTab('by-class')">
+                <i class="fas fa-chart-bar"></i> By Class
+            </button>
+        </div>
+        
+        <!-- Paid Students Tab -->
+        <div class="tab-content active" id="paidTab">
+            <h3>Students Who Paid Today</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Amount Paid</th>
+                            <th>Payment Method</th>
+                            <th>Time</th>
+                            <th>Receipt No.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="paidStudentsTable">
+                        <tr>
+                            <td colspan="6">No payments recorded for today</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Unpaid Students Tab -->
+        <div class="tab-content" id="unpaidTab">
+            <h3>Students Who Haven't Paid Today</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Class</th>
+                            <th>Last Payment Date</th>
+                            <th>Balance Due</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="unpaidStudentsTable">
+                        <tr>
+                            <td colspan="5">Loading unpaid students...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- By Class Tab -->
+        <div class="tab-content" id="byClassTab">
+            <h3>Summary by Class</h3>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Total Students</th>
+                            <th>Students Paid</th>
+                            <th>Students Unpaid</th>
+                            <th>Amount Collected</th>
+                            <th>Outstanding</th>
+                            <th>% Paid</th>
+                        </tr>
+                    </thead>
+                    <tbody id="byClassTable">
+                        <tr>
+                            <td colspan="7">Loading class summary...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Daily Summary Report for Printing -->
+    <div id="printableSummary" style="display: none;">
+        <!-- This will be populated for printing -->
+    </div>
+</div>

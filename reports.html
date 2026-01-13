@@ -1,0 +1,133 @@
+<div id="reports" class="page">
+    <h2 class="page-title">
+        <i class="fas fa-chart-bar"></i> Reports & Analytics
+    </h2>
+    
+    <!-- Report Type Selector -->
+    <div class="report-type-selector">
+        <div class="report-type active" data-type="daily">
+            <i class="fas fa-calendar-day"></i>
+            <span>Daily Report</span>
+        </div>
+        <div class="report-type" data-type="weekly">
+            <i class="fas fa-calendar-week"></i>
+            <span>Weekly Report</span>
+        </div>
+        <div class="report-type" data-type="monthly">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Monthly Report</span>
+        </div>
+        <div class="report-type" data-type="termly">
+            <i class="fas fa-book"></i>
+            <span>Termly Report</span>
+        </div>
+    </div>
+    
+    <!-- Report Filters -->
+    <div class="report-filters">
+        <div class="filter-group">
+            <label for="reportDate">Date</label>
+            <input type="date" id="reportDate" value="<?php echo date('Y-m-d'); ?>">
+        </div>
+        
+        <div class="filter-group">
+            <label for="reportClass">Class</label>
+            <select id="reportClass">
+                <option value="all">All Classes</option>
+                <option value="Crèche">Crèche</option>
+                <option value="Nursery 1">Nursery 1</option>
+                <option value="Nursery 2">Nursery 2</option>
+                <option value="Kindergarten 1">Kindergarten 1</option>
+                <option value="Kindergarten 2">Kindergarten 2</option>
+                <option value="Basic 1">Basic 1</option>
+                <option value="Basic 2">Basic 2</option>
+                <option value="Basic 3">Basic 3</option>
+                <option value="Basic 4">Basic 4</option>
+                <option value="Basic 5">Basic 5</option>
+                <option value="Basic 6">Basic 6</option>
+                <option value="JHS 1">JHS 1</option>
+                <option value="JHS 2">JHS 2</option>
+                <option value="JHS 3">JHS 3</option>
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label for="reportTerm">Term</label>
+            <select id="reportTerm">
+                <option value="all">All Terms</option>
+                <option value="Term 1">Term 1</option>
+                <option value="Term 2">Term 2</option>
+                <option value="Term 3">Term 3</option>
+            </select>
+        </div>
+        
+        <button class="btn btn-primary" onclick="generateReport()">
+            <i class="fas fa-chart-bar"></i> Generate Report
+        </button>
+        
+        <button class="btn btn-secondary" onclick="printReport()">
+            <i class="fas fa-print"></i> Print Report
+        </button>
+        
+        <button class="btn btn-secondary" onclick="exportReportPDF()">
+            <i class="fas fa-download"></i> Export PDF
+        </button>
+    </div>
+    
+    <!-- Report Results -->
+    <div class="report-results">
+        <div class="report-summary" id="reportSummary" style="display: none;">
+            <h3>Report Summary</h3>
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h4>Total Collected</h4>
+                        <p class="summary-value" id="reportTotalCollected">₵ 0.00</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h4>Total Students</h4>
+                        <p class="summary-value" id="reportTotalStudents">0</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h4>Students Paid</h4>
+                        <p class="summary-value" id="reportStudentsPaid">0</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-user-times"></i>
+                    </div>
+                    <div class="summary-info">
+                        <h4>Students Unpaid</h4>
+                        <p class="summary-value" id="reportStudentsUnpaid">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Report Details Table -->
+        <div class="report-details" id="reportDetails">
+            <div class="empty-report">
+                <i class="fas fa-chart-line"></i>
+                <h3>No Report Generated</h3>
+                <p>Select report type and click "Generate Report" to view data.</p>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,155 @@
+<div id="payments" class="page">
+    <h2 class="page-title">
+        <i class="fas fa-credit-card"></i> Collect Fees Payment
+    </h2>
+    
+    <!-- Two-column layout -->
+    <div class="payment-container">
+        <!-- Left column: Student selection and info -->
+        <div class="payment-left">
+            <div class="form-container">
+                <h3><i class="fas fa-search"></i> Find Student</h3>
+                <div class="form-group">
+                    <label for="paymentStudentSearch">Search by Name or ID</label>
+                    <div class="search-box">
+                        <input type="text" id="paymentStudentSearch" 
+                               placeholder="Enter student name or ID..." 
+                               onkeyup="searchPaymentStudent()">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentClassFilter">Filter by Class</label>
+                    <select id="paymentClassFilter" onchange="loadPaymentStudents()">
+                        <option value="all">All Classes</option>
+                        <option value="Crèche">Crèche</option>
+                        <option value="Nursery 1">Nursery 1</option>
+                        <option value="Nursery 2">Nursery 2</option>
+                        <option value="Kindergarten 1">Kindergarten 1</option>
+                        <option value="Kindergarten 2">Kindergarten 2</option>
+                        <option value="Basic 1">Basic 1</option>
+                        <option value="Basic 2">Basic 2</option>
+                        <option value="Basic 3">Basic 3</option>
+                        <option value="Basic 4">Basic 4</option>
+                        <option value="Basic 5">Basic 5</option>
+                        <option value="Basic 6">Basic 6</option>
+                        <option value="JHS 1">JHS 1</option>
+                        <option value="JHS 2">JHS 2</option>
+                        <option value="JHS 3">JHS 3</option>
+                    </select>
+                </div>
+                
+                <div class="students-list" id="paymentStudentsList">
+                    <div class="loading">Loading students...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right column: Payment form -->
+        <div class="payment-right">
+            <div class="form-container">
+                <h3><i class="fas fa-money-check-alt"></i> Payment Details</h3>
+                
+                <div class="student-info-card" id="selectedStudentInfo" style="display: none;">
+                    <div class="info-header">
+                        <h4>Selected Student</h4>
+                        <span class="student-id" id="paymentStudentId"></span>
+                    </div>
+                    <div class="info-details">
+                        <div class="info-row">
+                            <span class="label">Name:</span>
+                            <span class="value" id="paymentStudentName"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Class:</span>
+                            <span class="value" id="paymentStudentClass"></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Term:</span>
+                            <span class="value" id="paymentStudentTerm"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <form id="paymentForm" onsubmit="processPayment(event)" style="display: none;">
+                    <div class="fee-summary">
+                        <h4><i class="fas fa-calculator"></i> Fee Summary</h4>
+                        <div class="summary-row">
+                            <span>Term Fee:</span>
+                            <span id="termFeeDisplay">₵ 0.00</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Paid Already:</span>
+                            <span id="paidAlready">₵ 0.00</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Balance Due:</span>
+                            <span id="balanceDue">₵ 0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentAmount">Amount to Pay (₵) *</label>
+                        <input type="number" id="paymentAmount" min="0.01" step="0.01" required>
+                        <small>Enter amount in Ghana Cedis</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentMethod">Payment Method *</label>
+                        <select id="paymentMethod" required>
+                            <option value="">Select Method</option>
+                            <option value="Cash">Cash</option>
+                            <option value="MoMo">Mobile Money (MoMo)</option>
+                            <option value="Bank">Bank Transfer</option>
+                            <option value="Cheque">Cheque</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentReceiver">Received By *</label>
+                        <input type="text" id="paymentReceiver" 
+                               value="Administrator" 
+                               placeholder="Enter staff name" 
+                               required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="paymentDate">Payment Date</label>
+                        <input type="date" id="paymentDate" 
+                               value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle"></i> Complete Payment
+                        </button>
+                        <button type="button" class="btn btn-secondary" onclick="clearPaymentForm()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="paymentSuccess" style="display: none;">
+                    <div class="success-message">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>Payment Successful!</h3>
+                        <p>Payment has been recorded successfully.</p>
+                        <div class="receipt-info">
+                            <p><strong>Receipt Number:</strong> <span id="receiptNumber"></span></p>
+                            <p><strong>New Balance:</strong> <span id="newBalance"></span></p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="printReceipt()">
+                                <i class="fas fa-print"></i> Print Receipt
+                            </button>
+                            <button class="btn btn-secondary" onclick="clearPaymentSuccess()">
+                                <i class="fas fa-plus"></i> New Payment
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,112 @@
+<div id="fees" class="page">
+    <h2 class="page-title">
+        <i class="fas fa-money-bill-wave"></i> Fees Setup & Management
+    </h2>
+    
+    <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <p>Set daily and term fees for each class. Changes will affect all students in the selected class.</p>
+    </div>
+    
+    <!-- Fees Configuration Form -->
+    <div class="form-container">
+        <h3><i class="fas fa-cog"></i> Configure Fees</h3>
+        <form id="feesForm" onsubmit="saveFees(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="feeClass">Class *</label>
+                    <select id="feeClass" required onchange="loadClassFees()">
+                        <option value="">Select Class</option>
+                        <option value="Crèche">Crèche</option>
+                        <option value="Nursery 1">Nursery 1</option>
+                        <option value="Nursery 2">Nursery 2</option>
+                        <option value="Kindergarten 1">Kindergarten 1</option>
+                        <option value="Kindergarten 2">Kindergarten 2</option>
+                        <option value="Basic 1">Basic 1</option>
+                        <option value="Basic 2">Basic 2</option>
+                        <option value="Basic 3">Basic 3</option>
+                        <option value="Basic 4">Basic 4</option>
+                        <option value="Basic 5">Basic 5</option>
+                        <option value="Basic 6">Basic 6</option>
+                        <option value="JHS 1">JHS 1</option>
+                        <option value="JHS 2">JHS 2</option>
+                        <option value="JHS 3">JHS 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="feeTerm">Academic Term *</label>
+                    <select id="feeTerm" required onchange="loadClassFees()">
+                        <option value="">Select Term</option>
+                        <option value="Term 1">Term 1</option>
+                        <option value="Term 2">Term 2</option>
+                        <option value="Term 3">Term 3</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="feeYear">Academic Year *</label>
+                    <select id="feeYear" required onchange="loadClassFees()">
+                        <option value="">Select Year</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dailyFee">Daily Fee (₵) *</label>
+                    <input type="number" id="dailyFee" min="0" step="0.01" required>
+                    <small>The amount charged per school day</small>
+                </div>
+                <div class="form-group">
+                    <label for="termFee">Term Fee (₵) *</label>
+                    <input type="number" id="termFee" min="0" step="0.01" required>
+                    <small>Total fee for the entire term</small>
+                </div>
+            </div>
+            
+            <div class="current-fees" id="currentFeesInfo" style="display: none;">
+                <h4><i class="fas fa-history"></i> Current Fees</h4>
+                <p id="currentFeesText"></p>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Fees
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="resetFeesForm()">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- All Fees Table -->
+    <div class="table-section">
+        <h3><i class="fas fa-list"></i> All Configured Fees</h3>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Class</th>
+                        <th>Term</th>
+                        <th>Year</th>
+                        <th>Daily Fee</th>
+                        <th>Term Fee</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="feesTable">
+                    <tr>
+                        <td colspan="7">Loading fees data...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
