@@ -2607,9 +2607,51 @@
         }
 
         function showSheetsConfig() {
-            loadSheetsConfig();
-            document.getElementById('sheetsConfigModal').classList.add('active');
-        }
+    const modalContent = `
+        <div class="form-container">
+            <h3><i class="fab fa-google"></i> Google Sheets Configuration</h3>
+            <div class="info-box mb-3">
+                <i class="fas fa-info-circle"></i>
+                <div>
+                    <p><strong>Setup Instructions:</strong></p>
+                    <ol style="margin-left: 20px; margin-top: 10px;">
+                        <li>Create a Google Sheet</li>
+                        <li>Click "Share" and set to "Anyone with the link can edit"</li>
+                        <li>Copy the Sheet ID from the URL</li>
+                        <li>Get API key from Google Cloud Console</li>
+                        <li>Configure below</li>
+                    </ol>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="sheetsApiKey">Google Sheets API Key *</label>
+                <input type="password" id="sheetsApiKey" placeholder="Enter your Google Sheets API Key" required>
+                <small>Get API key from Google Cloud Console</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="sheetId">Google Sheet ID *</label>
+                <input type="text" id="sheetId" placeholder="Enter your Google Sheet ID" required>
+                <small>From URL: https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit</small>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-success" onclick="testSheetsConnection()">
+                    <i class="fas fa-plug"></i> Test Connection
+                </button>
+                <button class="btn btn-primary" onclick="saveSheetsConfig()">
+                    <i class="fas fa-save"></i> Save Configuration
+                </button>
+                <button class="btn btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    `;
+    
+    showModal('Google Sheets Configuration', modalContent);
+}
 
         function closeSheetsConfig() {
             document.getElementById('sheetsConfigModal').classList.remove('active');
@@ -5884,6 +5926,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </script>
 </body>
 </html>
+
 
 
 
