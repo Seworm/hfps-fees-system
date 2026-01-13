@@ -5864,8 +5864,26 @@
                 toastr.info('Welcome to HFPS Fees Collection System v2.0! Sample data has been loaded.');
             }, 1000);
         }
+        // Add System Admin button to header
+function addSystemAdminButton() {
+    const userInfo = document.querySelector('.user-info');
+    if (userInfo && !document.querySelector('.system-admin-btn')) {
+        const adminBtn = document.createElement('button');
+        adminBtn.className = 'logout-btn system-admin-btn';
+        adminBtn.style.marginLeft = '10px';
+        adminBtn.title = 'System Admin';
+        adminBtn.innerHTML = '<i class="fas fa-cogs"></i>';
+        adminBtn.onclick = showSystemAdmin;
+        
+        userInfo.appendChild(adminBtn);
+    }
+}
+        // Call this after page loads
+document.addEventListener('DOMContentLoaded', function() {
+    addSystemAdminButton();
     </script>
 </body>
 </html>
+
 
 
