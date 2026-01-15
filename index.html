@@ -3071,25 +3071,31 @@
             // ============================================
 
             addStudent(student) {
-                const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
-                
-                // Get the daily fee for this student's class
-                const classFees = this.getFee(student.class, student.term, student.year);
-                const dailyFee = classFees ? classFees.dailyFee : 0;
-                
-                const newStudent = {
-                    id: studentId,
-                    ...student,
-                    dailyFee: dailyFee, // Store daily fee with student
-                    balance: 0, // Start with 0 balance
-                    totalPaid: 0, // Track total payments
-                    attendanceDays: 0, // Track days attended
-                    totalDaysCharged: 0, // Track days to be charged
-                    lastAttendanceDate: null, // Track last attendance date
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    status: 'active'
-                };
+    const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
+    
+    // Get the daily fee for this student's class
+    const classFees = this.getFee(student.class, student.term, student.year);
+    const dailyFee = classFees ? classFees.dailyFee : 0;
+    
+    // Initialize student with zero values
+    const newStudent = {
+        id: studentId,
+        ...student,
+        dailyFee: dailyFee, // Store daily fee with student
+        balance: 0, // Start with 0 balance - will be updated when attendance is marked
+        totalPaid: 0, // Track total payments
+        attendanceDays: 0, // Track days attended
+        totalDaysCharged: 0, // Track days to be charged
+        lastAttendanceDate: null, // Track last attendance date
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: 'active'
+    };
+    
+    this.students.push(newStudent);
+    this.saveToLocalStorage();
+    return newStudent;
+}
                 
                 this.students.push(newStudent);
                 this.saveToLocalStorage();
@@ -3122,56 +3128,414 @@
             // ATTENDANCE OPERATIONS (DAILY FEE GENERATION)
             // ============================================
 
-            markAttendance(studentId, date, markedBy = 'Administrator') {
-                const student = this.getStudent(studentId);
-                if (!student) return false;
-                
-                const attendanceDate = date || new Date().toISOString().split('T')[0];
-                
-                // Check if already marked for this date
-                const alreadyMarked = this.attendanceLog.find(a => 
-                    a.studentId === studentId && a.date === attendanceDate
-                );
-                
-                if (alreadyMarked) {
-                    return false; // Already marked
-                }
-                
-                // Calculate new balance (add daily fee)
+            // Add this to the DataManager class, in the markAttendance method
+markAttendance(studentId, date, markedBy = 'Administrator') {
+    const student = this.getStudent(studentId);
+    if (!student) return false;
+    
+    const attendanceDate = date || new Date().toISOString().split('T')[0];
+    
+    // Check if already marked for this date
+    const alreadyMarked = this.attendanceLog.find(a => 
+        a.studentId === studentId && a.date === attendanceDate
+    );
+    
+    if (alreadyMarked) {
+        return false; // Already marked
+    }
+    
+    // Calculate new balance (add daily fee)
+    const dailyFee = student.dailyFee || 0;
+    const newBalance = (student.balance || 0) + dailyFee;
+    
+    // Update student record
+    const updates = {
+        attendanceDays: (student.attendanceDays || 0) + 1,
+        totalDaysCharged: (student.totalDaysCharged || 0) + 1,
+        balance: newBalance,
+        lastAttendanceDate: attendanceDate,
+        updatedAt: new Date().toISOString()
+    };
+    
+    this.updateStudent(studentId, updates);
+    
+    // Record attendance log
+    const attendanceRecord = {
+        id: 'ATT' + String(this.attendanceLog.length + 1001).padStart(4, '0'),
+        studentId: studentId,
+        studentName: student.name,
+        class: student.class,
+        date: attendanceDate,
+        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        dailyFee: dailyFee,
+        balanceBefore: student.balance || 0,
+        balanceAfter: newBalance,
+        markedBy: markedBy,
+        createdAt: new Date().toISOString()
+    };
+    
+    this.attendanceLog.push(attendanceRecord);
+    this.saveToLocalStorage();
+    
+    return true;
+}
+
+// Update the processPayment method to reset balance when fully paid
+processPayment(event) {
+    event.preventDefault();
+    
+    if (!this.data.selectedStudent) {
+        toastr.error('Please select a student first');
+        return;
+    }
+    
+    const amount = parseFloat(document.getElementById('paymentAmount').value);
+    const method = document.getElementById('paymentMethod').value;
+    const receiver = document.getElementById('paymentReceiver').value;
+    const date = document.getElementById('paymentDate').value || this.getTodayDate();
+    const notes = document.getElementById('paymentNotes').value.trim();
+    
+    if (amount <= 0) {
+        toastr.error('Please enter a valid amount');
+        return;
+    }
+    
+    if (!method) {
+        toastr.error('Please select a payment method');
+        return;
+    }
+    
+    const student = this.data.selectedStudent;
+    const newBalance = Math.max(0, student.balance - amount);
+    
+    // Check if payment fully clears the balance
+    const fullyCleared = newBalance === 0;
+    
+    // Create payment
+    const payment = {
+        date: date,
+        time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+        studentId: student.id,
+        studentName: student.name,
+        class: student.class,
+        amount: amount,
+        method: method,
+        receiver: receiver,
+        balanceBefore: student.balance,
+        balanceAfter: newBalance,
+        notes: notes,
+        fullyCleared: fullyCleared
+    };
+    
+    // Add payment method details
+    if (method === 'MoMo') {
+        payment.momoNumber = document.getElementById('momoNumber').value.trim();
+    } else if (method === 'Bank') {
+        payment.bankReference = document.getElementById('bankReference').value.trim();
+    }
+    
+    // Save payment
+    const savedPayment = this.data.addPayment(payment);
+    
+    // Update student balance
+    const studentUpdates = { 
+        balance: newBalance,
+        lastPaymentDate: date
+    };
+    
+    // If balance is fully cleared, we can optionally reset some counters
+    if (fullyCleared) {
+        studentUpdates.totalDaysCharged = 0; // Reset for next cycle
+    }
+    
+    this.data.updateStudent(student.id, studentUpdates);
+    
+    // Generate receipt
+    this.generateA4Receipt(savedPayment);
+    
+    // Update UI
+    document.getElementById('paymentForm').style.display = 'none';
+    document.getElementById('paymentSuccess').style.display = 'block';
+    document.getElementById('receiptNumber').textContent = savedPayment.receiptNo;
+    document.getElementById('amountPaid').textContent = `₵ ${amount.toFixed(2)}`;
+    document.getElementById('newBalance').textContent = `₵ ${newBalance.toFixed(2)}`;
+    document.getElementById('paymentDateDisplay').textContent = date;
+    
+    // Show special message if balance fully cleared
+    if (fullyCleared) {
+        document.querySelector('#paymentSuccess p').textContent = 
+            'Payment recorded! Student\'s balance is now cleared until next attendance.';
+    }
+    
+    // Update dashboard
+    this.updateDashboard();
+    this.loadPaymentStudents();
+    this.loadStudents();
+    
+    toastr.success(`Payment of ₵${amount.toFixed(2)} recorded successfully`);
+}
+
+// Update the loadAttendanceStudents method to include bulk marking features
+loadAttendanceStudents() {
+    const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+    const classFilter = document.getElementById('attendanceClassFilter').value || 'all';
+    
+    // Display date
+    document.getElementById('attendanceDateDisplay').textContent = date;
+    
+    // Get students for attendance
+    let students = this.data.getActiveStudents();
+    
+    if (classFilter !== 'all') {
+        students = students.filter(s => s.class === classFilter);
+    }
+    
+    // Get today's attendance
+    const todayAttendance = this.data.getAttendanceForDate(date);
+    const markedStudentIds = todayAttendance.map(a => a.studentId);
+    
+    // Update counters
+    document.getElementById('attendanceTotalStudents').textContent = students.length;
+    document.getElementById('attendanceMarkedToday').textContent = markedStudentIds.length;
+    
+    // Display students with bulk selection options
+    const list = document.getElementById('attendanceStudentsList');
+    
+    if (students.length === 0) {
+        list.innerHTML = '<div class="loading">No students found for selected class</div>';
+        return;
+    }
+    
+    list.innerHTML = `
+        <div class="bulk-actions" style="padding: 10px; background: #f5f7fa; border-bottom: 1px solid #ddd;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button class="btn btn-primary btn-sm" onclick="app.selectAllAttendance()">
+                    <i class="fas fa-check-double"></i> Select All
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="app.deselectAllAttendance()">
+                    <i class="fas fa-times"></i> Deselect All
+                </button>
+                <button class="btn btn-success btn-sm" onclick="app.markSelectedAttendance()">
+                    <i class="fas fa-save"></i> Mark Selected
+                </button>
+                <span style="margin-left: auto; font-size: 0.9rem;">
+                    <span id="selectedCount">0</span> selected
+                </span>
+            </div>
+        </div>
+        <div id="attendanceStudentItems" style="max-height: 400px; overflow-y: auto;">
+            ${students.map(student => {
+                const isMarked = markedStudentIds.includes(student.id);
                 const dailyFee = student.dailyFee || 0;
-                const newBalance = (student.balance || 0) + dailyFee;
+                const isSelected = false; // Start unselected
                 
-                // Update student record
-                const updates = {
-                    attendanceDays: (student.attendanceDays || 0) + 1,
-                    totalDaysCharged: (student.totalDaysCharged || 0) + 1,
-                    balance: newBalance,
-                    lastAttendanceDate: attendanceDate,
-                    updatedAt: new Date().toISOString()
-                };
-                
-                this.updateStudent(studentId, updates);
-                
-                // Record attendance log
-                const attendanceRecord = {
-                    id: 'ATT' + String(this.attendanceLog.length + 1001).padStart(4, '0'),
-                    studentId: studentId,
-                    studentName: student.name,
-                    class: student.class,
-                    date: attendanceDate,
-                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                    dailyFee: dailyFee,
-                    balanceBefore: student.balance || 0,
-                    balanceAfter: newBalance,
-                    markedBy: markedBy,
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.attendanceLog.push(attendanceRecord);
-                this.saveToLocalStorage();
-                
-                return true;
+                return `
+                    <div class="attendance-student-item student-item ${isMarked ? 'active' : ''} ${isSelected ? 'selected' : ''}" 
+                         data-student-id="${student.id}" 
+                         onclick="app.toggleAttendanceSelection('${student.id}', event)">
+                        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                            <input type="checkbox" class="attendance-checkbox" 
+                                   ${isMarked ? 'checked disabled' : ''}
+                                   ${isSelected ? 'checked' : ''}
+                                   style="width: 20px; height: 20px;"
+                                   onchange="app.handleAttendanceCheckbox('${student.id}', this.checked)">
+                            <div style="flex: 1;">
+                                <div class="student-name">${student.name}</div>
+                                <div class="student-details">
+                                    <span class="student-id">${student.id}</span> | 
+                                    <span class="student-class">${student.class}</span> | 
+                                    <span class="student-fee">Daily: ₵${dailyFee.toFixed(2)}</span> |
+                                    <span class="student-balance ${student.balance === 0 ? 'text-success' : 'text-danger'}">
+                                        Balance: ₵${student.balance.toFixed(2)}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style="color: ${isMarked ? 'green' : 'orange'};">
+                                <i class="fas ${isMarked ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                ${isMarked ? 'Marked' : 'Pending'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+    
+    // Update attendance log table
+    this.updateAttendanceLogTable(date);
+    this.updateSelectedCount();
+}
+
+// Add these new methods for bulk attendance management
+toggleAttendanceSelection(studentId, event) {
+    // Prevent clicking on the checkbox from triggering both handlers
+    if (event.target.type === 'checkbox') return;
+    
+    const studentItem = document.querySelector(`.attendance-student-item[data-student-id="${studentId}"]`);
+    if (!studentItem) return;
+    
+    // Don't allow selection if already marked
+    if (studentItem.classList.contains('active')) return;
+    
+    const checkbox = studentItem.querySelector('.attendance-checkbox');
+    if (checkbox && !checkbox.disabled) {
+        checkbox.checked = !checkbox.checked;
+        this.handleAttendanceCheckbox(studentId, checkbox.checked);
+    }
+}
+
+handleAttendanceCheckbox(studentId, isChecked) {
+    const studentItem = document.querySelector(`.attendance-student-item[data-student-id="${studentId}"]`);
+    if (studentItem) {
+        if (isChecked) {
+            studentItem.classList.add('selected');
+        } else {
+            studentItem.classList.remove('selected');
+        }
+    }
+    this.updateSelectedCount();
+}
+
+updateSelectedCount() {
+    const selectedCount = document.querySelectorAll('.attendance-student-item.selected:not(.active)').length;
+    document.getElementById('selectedCount').textContent = selectedCount;
+}
+
+selectAllAttendance() {
+    const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+    const todayAttendance = this.data.getAttendanceForDate(date);
+    const markedStudentIds = todayAttendance.map(a => a.studentId);
+    
+    document.querySelectorAll('.attendance-student-item:not(.active)').forEach(item => {
+        const studentId = item.dataset.studentId;
+        if (!markedStudentIds.includes(studentId)) {
+            item.classList.add('selected');
+            const checkbox = item.querySelector('.attendance-checkbox');
+            if (checkbox && !checkbox.disabled) {
+                checkbox.checked = true;
             }
+        }
+    });
+    this.updateSelectedCount();
+}
+
+deselectAllAttendance() {
+    document.querySelectorAll('.attendance-student-item').forEach(item => {
+        item.classList.remove('selected');
+        const checkbox = item.querySelector('.attendance-checkbox');
+        if (checkbox && !checkbox.disabled) {
+            checkbox.checked = false;
+        }
+    });
+    this.updateSelectedCount();
+}
+
+markSelectedAttendance() {
+    const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+    const selectedItems = document.querySelectorAll('.attendance-student-item.selected:not(.active)');
+    
+    if (selectedItems.length === 0) {
+        toastr.warning('No students selected for attendance marking');
+        return;
+    }
+    
+    let markedCount = 0;
+    selectedItems.forEach(item => {
+        const studentId = item.dataset.studentId;
+        const success = this.data.markAttendance(studentId, date);
+        if (success) markedCount++;
+    });
+    
+    if (markedCount > 0) {
+        toastr.success(`Marked attendance for ${markedCount} student(s)`);
+        this.loadAttendanceStudents();
+        this.loadStudents();
+        this.updateDashboard();
+    }
+}
+
+// Update the markAllAttendance method
+markAllAttendance() {
+    const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+    const classFilter = document.getElementById('attendanceClassFilter').value || 'all';
+    
+    let students = this.data.getActiveStudents();
+    if (classFilter !== 'all') {
+        students = students.filter(s => s.class === classFilter);
+    }
+    
+    const todayAttendance = this.data.getAttendanceForDate(date);
+    const markedStudentIds = todayAttendance.map(a => a.studentId);
+    
+    let markedCount = 0;
+    students.forEach(student => {
+        if (!markedStudentIds.includes(student.id)) {
+            const success = this.data.markAttendance(student.id, date);
+            if (success) markedCount++;
+        }
+    });
+    
+    toastr.success(`Marked attendance for ${markedCount} student(s)`);
+    this.loadAttendanceStudents();
+}
+
+// Add this to the addStudent method to properly initialize
+addStudent(student) {
+    const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
+    
+    // Get the daily fee for this student's class
+    const classFees = this.getFee(student.class, student.term, student.year);
+    const dailyFee = classFees ? classFees.dailyFee : 5.00; // Default to 5.00 if not set
+    
+    // Initialize student with zero balance
+    const newStudent = {
+        id: studentId,
+        ...student,
+        dailyFee: dailyFee,
+        balance: 0, // Start with 0 balance - will increase with attendance
+        totalPaid: 0,
+        attendanceDays: 0,
+        totalDaysCharged: 0,
+        lastAttendanceDate: null,
+        lastPaymentDate: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: 'active'
+    };
+    
+    this.students.push(newStudent);
+    this.saveToLocalStorage();
+    return newStudent;
+}
+
+// Add CSS for the selection styling
+const additionalStyles = `
+    .attendance-student-item.selected {
+        background-color: #e3f2fd !important;
+        border-left: 3px solid #2196f3 !important;
+    }
+    
+    .attendance-student-item.selected:hover {
+        background-color: #bbdefb !important;
+    }
+    
+    .attendance-student-item.active {
+        background-color: #e8f5e9 !important;
+        border-left: 3px solid #4caf50 !important;
+    }
+    
+    .bulk-actions {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+`;
+
+// Inject the styles
+const styleSheet = document.createElement("style");
+styleSheet.type = "text/css";
+styleSheet.innerText = additionalStyles;
+document.head.appendChild(styleSheet);
 
             getAttendanceForDate(date) {
                 return this.attendanceLog.filter(a => a.date === date);
@@ -5836,3 +6200,4 @@
     </script>
 </body>
 </html>
+
