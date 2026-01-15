@@ -3172,13 +3172,13 @@
                 }
             }
 
-            // Student Operations
-           addStudent(student) {
+            addStudent(student) {
     const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
+    
     const newStudent = {
         id: studentId,
         ...student,
-        balance: student.balance || 0, // Defaults to 0, not based on fees
+        balance: student.balance || 0,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         status: 'active'
@@ -3188,7 +3188,6 @@
     this.saveToLocalStorage();
     return newStudent;
 }
-
             updateStudent(studentId, updates) {
                 const index = this.students.findIndex(s => s.id === studentId);
                 if (index !== -1) {
@@ -3337,6 +3336,41 @@
                 this.debouncedSearchPaymentStudent = this.debounce(this.searchPaymentStudent.bind(this), 300);
                 this.debouncedSearchReceipts = this.debounce(this.searchReceipts.bind(this), 300);
             }
+            markAttendance(studentId, date = null) {
+    const student = this.data.getStudent(studentId);
+    if (!student) {
+        toastr.error('Student not found');
+        return;
+    }
+    
+    if (!student.dailyFee || student.dailyFee === 0) {
+        toastr.error('No daily fee configured for this student');
+        return;
+    }
+    
+    const attendanceDate = date || this.getTodayDate();
+    
+    // Check if already marked for today
+    if (student.lastAttendanceDate === attendanceDate) {
+        toastr.info('Attendance already marked for today');
+        return;
+    }
+    
+    // Update student record
+    const updates = {
+        attendanceDays: (student.attendanceDays || 0) + 1,
+        totalDaysCharged: (student.totalDaysCharged || 0) + 1,
+        balance: (student.balance || 0) + student.dailyFee,
+        lastAttendanceDate: attendanceDate,
+        updatedAt: new Date().toISOString()
+    };
+    
+    this.data.updateStudent(studentId, updates);
+    toastr.success(`Attendance marked for ${student.name}. New balance: ₵${updates.balance.toFixed(2)}`);
+    
+    // Refresh display
+    this.loadStudents();
+}
             // ============================================
             // INITIALIZATION
             // ============================================
@@ -3689,25 +3723,47 @@
             }
 
             saveStudent(event) {
-                event.preventDefault();
-                
-                const newStudent = {
-                    name: document.getElementById('fullName').value.trim(),
-                    gender: document.getElementById('gender').value,
-                    class: document.getElementById('studentClass').value,
-                    term: document.getElementById('academicTerm').value,
-                    year: document.getElementById('academicYear').value,
-                    parentPhone: document.getElementById('parentPhone').value.trim() || ''
-                };
-                
-                const student = this.data.addStudent(newStudent);
-                
-                this.hideAddStudentForm();
-                this.loadStudents();
-                this.updateDashboard();
-                
-                toastr.success(`Student ${student.name} added successfully with ID: ${student.id}`);
-            }
+    event.preventDefault();
+    
+    const newStudent = {
+        name: document.getElementById('fullName').value.trim(),
+        gender: document.getElementById('gender').value,
+        class: document.getElementById('studentClass').value,
+        term: document.getElementById('academicTerm').value,
+        year: document.getElementById('academicYear').value,
+        parentPhone: document.getElementById('parentPhone').value.trim() || '',
+        attendanceDays: 0, // Track days attended
+        totalDaysCharged: 0 // Track days to be charged
+    };
+    
+    // LOOK UP AND ASSIGN THE DAILY FEE
+    const classFees = this.data.getFee(newStudent.class, newStudent.term, newStudent.year);
+    
+    if (classFees) {
+        newStudent.dailyFee = classFees.dailyFee;
+        newStudent.termFee = classFees.termFee;
+        // Initial balance is 0 because no days attended yet
+        newStudent.balance = 0;
+        newStudent.feesConfigured = true;
+    } else {
+        newStudent.dailyFee = 0;
+        newStudent.termFee = 0;
+        newStudent.balance = 0;
+        newStudent.feesConfigured = false;
+    }
+    
+    const student = this.data.addStudent(newStudent);
+    
+    this.hideAddStudentForm();
+    this.loadStudents();
+    this.updateDashboard();
+    
+    if (classFees) {
+        toastr.success(`${student.name} added with daily fee of ₵${classFees.dailyFee.toFixed(2)}`);
+    } else {
+        toastr.warning(`${student.name} added, but no fees configured for ${student.class}. Please set fees first.`);
+    }
+}
 
             loadStudents() {
                 const searchTerm = document.getElementById('searchStudents')?.value || '';
@@ -3722,36 +3778,48 @@
                 }
                 
                 table.innerHTML = filteredStudents.map(student => {
-                    const statusClass = student.balance === 0 ? 'paid' : student.balance > 0 ? 'partial' : 'pending';
-                    const statusText = student.balance === 0 ? 'Paid' : student.balance > 0 ? 'Partial' : 'Pending';
-                    
-                    return `
-                        <tr>
-                            <td>${student.id}</td>
-                            <td>${student.name}</td>
-                            <td>${student.gender}</td>
-                            <td>${student.class}</td>
-                            <td>${student.term}</td>
-                            <td>${student.year}</td>
-                            <td class="${student.balance === 0 ? 'text-success' : 'text-danger'}">
-                                ₵ ${student.balance.toFixed(2)}
-                            </td>
-                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                            <td>
-                                <button class="btn btn-primary btn-sm" onclick="app.viewStudent('${student.id}')" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="app.editStudent('${student.id}')" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-warning btn-sm" onclick="app.archiveStudent('${student.id}')" title="Archive">
-                                    <i class="fas fa-archive"></i>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            }
+        // Calculate what should be displayed
+        const dailyFee = student.dailyFee || 0;
+        const attendanceDays = student.attendanceDays || 0;
+        const calculatedBalance = dailyFee * attendanceDays - (student.totalPaid || 0);
+        const actualBalance = student.balance || 0;
+        
+        const statusClass = actualBalance === 0 ? 'paid' : actualBalance > 0 ? 'partial' : 'pending';
+        const statusText = actualBalance === 0 ? 'Paid' : actualBalance > 0 ? 'Partial' : 'Pending';
+        
+        return `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.gender}</td>
+                <td>${student.class}</td>
+                <td>${student.term}</td>
+                <td>${student.year}</td>
+                <td>
+                    <small>Daily: ₵${dailyFee.toFixed(2)}</small><br>
+                    <span class="${actualBalance === 0 ? 'text-success' : 'text-danger'}">
+                        ₵ ${actualBalance.toFixed(2)}
+                    </span>
+                </td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusText}</span><br>
+                    <small>Days: ${attendanceDays}</small>
+                </td>
+                <td>
+                    <button class="btn btn-primary btn-sm" onclick="app.viewStudent('${student.id}')" title="View">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-success btn-sm" onclick="app.markAttendance('${student.id}')" title="Mark Attendance">
+                        <i class="fas fa-calendar-check"></i>
+                    </button>
+                    <button class="btn btn-secondary btn-sm" onclick="app.editStudent('${student.id}')" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
 
             filterStudents() {
                 this.loadStudents();
@@ -4222,21 +4290,19 @@
                 document.getElementById('paymentSuccess').style.display = 'none';
                 document.getElementById('noStudentSelected').style.display = 'none';
                 
-                // Calculate fee summary
-                const classFees = this.data.getFee(student.class, student.term, student.year);
-                const termFee = classFees ? classFees.termFee : 0;
-                const studentPayments = this.data.getStudentPayments(student.id);
-                const paidAlready = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                const balanceDue = student.balance;
-                
-                document.getElementById('termFeeDisplay').textContent = `₵ ${termFee.toFixed(2)}`;
-                document.getElementById('paidAlready').textContent = `₵ ${paidAlready.toFixed(2)}`;
+                    // Calculate fee summary differently
+    const dailyFee = student.dailyFee || 0;
+    const attendanceDays = student.attendanceDays || 0;
+    const totalCharged = dailyFee * attendanceDays;
+    const studentPayments = this.data.getStudentPayments(student.id);
+    const paidAlready = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+    const balanceDue = Math.max(0, totalCharged - paidAlready);
+    
+    // Update display
+    document.getElementById('termFeeDisplay').textContent = `Daily: ₵ ${dailyFee.toFixed(2)} × ${attendanceDays} days = ₵ ${totalCharged.toFixed(2)}`;
+    document.getElementById('paidAlready').textContent = `₵ ${paidAlready.toFixed(2)}`;
+    document.getElementById('balanceDue').textContent = `₵ ${balanceDue.toFixed(2)}`;
                 document.getElementById('balanceDue').textContent = `₵ ${balanceDue.toFixed(2)}`;
-                
-                // Set max payment amount
-                document.getElementById('paymentAmount').max = balanceDue;
-                document.getElementById('paymentAmount').value = balanceDue > 0 ? balanceDue : '';
-            }
 
             updatePaymentAmount() {
                 const amount = parseFloat(document.getElementById('paymentAmount').value) || 0;
@@ -6010,6 +6076,7 @@
     </script>
 </body>
 </html>
+
 
 
 
