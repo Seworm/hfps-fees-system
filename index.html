@@ -3173,21 +3173,21 @@
             }
 
             // Student Operations
-            addStudent(student) {
-                const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
-                const newStudent = {
-                    id: studentId,
-                    ...student,
-                    balance: student.balance || 0,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    status: 'active'
-                };
-                
-                this.students.push(newStudent);
-                this.saveToLocalStorage();
-                return newStudent;
-            }
+           addStudent(student) {
+    const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
+    const newStudent = {
+        id: studentId,
+        ...student,
+        balance: student.balance || 0, // Defaults to 0, not based on fees
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        status: 'active'
+    };
+    
+    this.students.push(newStudent);
+    this.saveToLocalStorage();
+    return newStudent;
+}
 
             updateStudent(studentId, updates) {
                 const index = this.students.findIndex(s => s.id === studentId);
@@ -3767,6 +3767,7 @@
                 const studentPayments = this.data.getStudentPayments(studentId);
                 const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
                 const classFees = this.data.getFee(student.class, student.term, student.year);
+                const initialBalance = classFees ? classFees.termFee : 0;
                 const termFee = classFees ? classFees.termFee : 0;
                 
                 const modalContent = `
@@ -4660,7 +4661,17 @@
                 const classFilter = document.getElementById('reportClass').value;
                 const termFilter = document.getElementById('reportTerm').value;
                 const yearFilter = document.getElementById('reportYear').value;
-                
+                // SET INITIAL BALANCE TO TERM FEE (if fees are configured)
+    if (classFees) {
+        newStudent.balance = classFees.termFee;
+        newStudent.dailyFee = classFees.dailyFee;
+        newStudent.termFee = classFees.termFee;
+    } else {
+        // Default to 0 if no fees configured
+        newStudent.balance = 0;
+        newStudent.dailyFee = 0;
+        newStudent.termFee = 0;
+    }
                 // Filter students
                 let filteredStudents = this.data.getActiveStudents();
                 if (classFilter !== 'all') {
@@ -5999,5 +6010,6 @@
     </script>
 </body>
 </html>
+
 
 
