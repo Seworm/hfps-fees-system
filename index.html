@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1418,6 +1418,10 @@
                         <i class="fas fa-calendar-day"></i>
                         <span>Daily Summary</span>
                     </li>
+                    <li class="nav-item" data-page="attendance">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>Daily Attendance</span>
+                    </li>
                     <li class="nav-item" data-page="system-admin">
                         <i class="fas fa-cogs"></i>
                         <span>System Admin</span>
@@ -1498,13 +1502,13 @@
                                 <i class="fas fa-user-plus"></i>
                                 <span>Add New Student</span>
                             </button>
+                            <button class="action-btn" onclick="app.loadPage('attendance')">
+                                <i class="fas fa-calendar-check"></i>
+                                <span>Mark Attendance</span>
+                            </button>
                             <button class="action-btn" onclick="app.loadPage('daily-summary')">
                                 <i class="fas fa-file-invoice"></i>
                                 <span>Daily Summary</span>
-                            </button>
-                            <button class="action-btn" onclick="window.print()">
-                                <i class="fas fa-print"></i>
-                                <span>Print Report</span>
                             </button>
                         </div>
                     </div>
@@ -1647,7 +1651,7 @@
                                         <option value="2027/2028">2027/2028</option>
                                         <option value="2028/2029">2028/2029</option>
                                         <option value="2029/2030">2029/2030</option>
-                                        <option value="2020/2031">2030/2031</option>
+                                        <option value="2030/2031">2030/2031</option>
                                         <option value="2031/2032">2031/2032</option>
                                     </select>
                                 </div>
@@ -1749,7 +1753,7 @@
                                         <option value="2027/2028">2027/2028</option>
                                         <option value="2028/2029">2028/2029</option>
                                         <option value="2029/2030">2029/2030</option>
-                                        <option value="2020/2031">2030/2031</option>
+                                        <option value="2030/2031">2030/2031</option>
                                         <option value="2031/2032">2031/2032</option>
                                     </select>
                                 </div>
@@ -1907,8 +1911,16 @@
                                     <div class="fee-summary">
                                         <h4><i class="fas fa-calculator"></i> Fee Summary</h4>
                                         <div class="summary-row">
-                                            <span>Term Fee:</span>
-                                            <span id="termFeeDisplay">₵ 0.00</span>
+                                            <span>Daily Fee:</span>
+                                            <span id="dailyFeeDisplay">₵ 0.00</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Attendance Days:</span>
+                                            <span id="attendanceDaysDisplay">0 days</span>
+                                        </div>
+                                        <div class="summary-row">
+                                            <span>Total Charged:</span>
+                                            <span id="totalCharged">₵ 0.00</span>
                                         </div>
                                         <div class="summary-row">
                                             <span>Paid Already:</span>
@@ -2163,13 +2175,13 @@
                             <label for="reportYear">Year</label>
                             <select id="reportYear">
                                 <option value="all">All Years</option>
-                                        <option value="2025/2026">2025/2026</option>
-                                        <option value="2026/2027">2026/2027</option>
-                                        <option value="2027/2028">2027/2028</option>
-                                        <option value="2028/2029">2028/2029</option>
-                                        <option value="2029/2030">2029/2030</option>
-                                        <option value="2020/2031">2030/2031</option>
-                                        <option value="2031/2032">2031/2032</option>
+                                <option value="2025/2026">2025/2026</option>
+                                <option value="2026/2027">2026/2027</option>
+                                <option value="2027/2028">2027/2028</option>
+                                <option value="2028/2029">2028/2029</option>
+                                <option value="2029/2030">2029/2030</option>
+                                <option value="2030/2031">2030/2031</option>
+                                <option value="2031/2032">2031/2032</option>
                             </select>
                         </div>
                         
@@ -2463,6 +2475,113 @@
                     </div>
                 </div>
 
+                <!-- Daily Attendance Page -->
+                <div id="attendance" class="page">
+                    <h2 class="page-title">
+                        <i class="fas fa-calendar-check"></i> Daily Attendance & Fee Generation
+                    </h2>
+                    
+                    <div class="info-box">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <p><strong>How Daily Fees Work:</strong></p>
+                            <ol style="margin-left: 20px; margin-top: 10px;">
+                                <li>Mark student attendance for each school day</li>
+                                <li>System automatically adds daily fee to student's balance</li>
+                                <li>Debt accumulates daily until payment is made</li>
+                                <li>Payments reduce the balance</li>
+                                <li>New debt is created each day student attends</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <div class="form-container">
+                        <h3><i class="fas fa-calendar-day"></i> Mark Attendance for Today</h3>
+                        
+                        <div class="page-controls mb-3">
+                            <div class="form-group" style="flex: 1;">
+                                <label for="attendanceDate">Attendance Date</label>
+                                <input type="date" id="attendanceDate" value="" onchange="app.loadAttendanceStudents()">
+                            </div>
+                            <div class="form-group">
+                                <label for="attendanceClassFilter">Filter by Class</label>
+                                <select id="attendanceClassFilter" onchange="app.loadAttendanceStudents()">
+                                    <option value="all">All Classes</option>
+                                    <option value="Crèche">Crèche</option>
+                                    <option value="Nursery 1">Nursery 1</option>
+                                    <option value="Nursery 2">Nursery 2</option>
+                                    <option value="Kindergarten 1">Kindergarten 1</option>
+                                    <option value="Kindergarten 2">Kindergarten 2</option>
+                                    <option value="Basic 1">Basic 1</option>
+                                    <option value="Basic 2">Basic 2</option>
+                                    <option value="Basic 3">Basic 3</option>
+                                    <option value="Basic 4">Basic 4</option>
+                                    <option value="Basic 5">Basic 5</option>
+                                    <option value="Basic 6">Basic 6</option>
+                                    <option value="JHS 1">JHS 1</option>
+                                    <option value="JHS 2">JHS 2</option>
+                                    <option value="JHS 3">JHS 3</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary" onclick="app.markAllAttendance()">
+                                <i class="fas fa-check-double"></i> Mark All Present
+                            </button>
+                        </div>
+                        
+                        <div class="attendance-summary mb-3">
+                            <div class="d-flex justify-between">
+                                <div>
+                                    <strong>Date:</strong> <span id="attendanceDateDisplay"></span>
+                                </div>
+                                <div>
+                                    <strong>Total Students:</strong> <span id="attendanceTotalStudents">0</span>
+                                </div>
+                                <div>
+                                    <strong>Marked Today:</strong> <span id="attendanceMarkedToday">0</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="students-list" id="attendanceStudentsList" style="max-height: 500px;">
+                            <div class="loading">Loading students for attendance...</div>
+                        </div>
+                        
+                        <div class="form-actions mt-3">
+                            <button class="btn btn-success" onclick="app.saveAttendance()">
+                                <i class="fas fa-save"></i> Save Attendance
+                            </button>
+                            <button class="btn btn-secondary" onclick="app.loadAttendanceStudents()">
+                                <i class="fas fa-sync"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="form-container mt-4">
+                        <h3><i class="fas fa-history"></i> Today's Attendance Log</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Student Name</th>
+                                        <th>Class</th>
+                                        <th>Daily Fee</th>
+                                        <th>Attendance Status</th>
+                                        <th>Balance Before</th>
+                                        <th>Balance After</th>
+                                        <th>Time Marked</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceLogTable">
+                                    <tr>
+                                        <td colspan="8" class="text-center">No attendance marked for today</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- System Admin Page -->
                 <div id="system-admin" class="page">
                     <h2 class="page-title">
@@ -2502,13 +2621,13 @@
                         <div class="form-group">
                             <label>Academic Year</label>
                             <select id="currentAcademicYear" class="w-100">
-                                        <option value="2025/2026" selected>2025/2026</option>
-                                        <option value="2026/2027">2026/2027</option>
-                                        <option value="2027/2028">2027/2028</option>
-                                        <option value="2028/2029">2028/2029</option>
-                                        <option value="2029/2030">2029/2030</option>
-                                        <option value="2020/2031">2030/2031</option>
-                                        <option value="2031/2032">2031/2032</option>
+                                <option value="2025/2026" selected>2025/2026</option>
+                                <option value="2026/2027">2026/2027</option>
+                                <option value="2027/2028">2027/2028</option>
+                                <option value="2028/2029">2028/2029</option>
+                                <option value="2029/2030">2029/2030</option>
+                                <option value="2030/2031">2030/2031</option>
+                                <option value="2031/2032">2031/2032</option>
                             </select>
                         </div>
                     </div>
@@ -2546,7 +2665,7 @@
                         <div class="info-box">
                             <i class="fas fa-info-circle"></i>
                             <div>
-                                <p><strong>Version:</strong> 2.0.0 (Local Storage)</p>
+                                <p><strong>Version:</strong> 2.1.0 (Daily Fee System)</p>
                                 <p><strong>Last Backup:</strong> <span id="lastBackup">N/A</span></p>
                                 <p><strong>Storage Used:</strong> <span id="storageUsed">Calculating...</span></p>
                             </div>
@@ -2645,7 +2764,7 @@
     </div>
 
     <script>
-       // ============================================
+        // ============================================
         // APPLICATION CONFIGURATION
         // ============================================
         
@@ -2675,10 +2794,10 @@
             DEFAULT_CURRENCY: 'GHS',
             DATE_FORMAT: 'en-US',
             
-            // Google Sheets Configuration - UPDATED FOR GITHUB
+            // Google Sheets Configuration
             GOOGLE_SHEETS: {
-                apiKey: '', // Will be set by user
-                sheetId: '', // Will be set by user
+                apiKey: '',
+                sheetId: '',
                 sheets: {
                     students: 'Students',
                     fees: 'Fees',
@@ -2687,7 +2806,6 @@
                 },
                 isConfigured: false
             },
-            
             
             // Application Data
             CLASSES: [
@@ -2698,23 +2816,21 @@
             
             TERMS: ['Term 1', 'Term 2', 'Term 3'],
             
-            YEARS: ['2025/2026', '2026/2027', '2027/2028', '2028/2029', '2029/2030', '2030/2031', '2031/3032'],
+            YEARS: ['2025/2026', '2026/2027', '2027/2028', '2028/2029', '2029/2030', '2030/2031', '2031/2032'],
             
             PAYMENT_METHODS: ['Cash', 'MoMo', 'Bank', 'Cheque', 'Card']
         };
 
-       // ============================================
-        // GOOGLE SHEETS API FIXES FOR GITHUB PAGES
+        // ============================================
+        // GOOGLE SHEETS API SERVICE
         // ============================================
         
-        // Google Sheets API Service with CORS proxy for GitHub Pages
         class GoogleSheetsService {
             constructor() {
                 this.corsProxy = 'https://corsproxy.io/?';
                 this.baseUrl = 'https://sheets.googleapis.com/v4/spreadsheets';
             }
 
-            // Test connection
             async testConnection(apiKey, sheetId) {
                 try {
                     const url = `${this.corsProxy}${encodeURIComponent(`${this.baseUrl}/${sheetId}?key=${apiKey}`)}`;
@@ -2743,7 +2859,6 @@
                 }
             }
 
-            // Read data from sheet
             async readSheet(apiKey, sheetId, sheetName, range = 'A:Z') {
                 try {
                     const url = `${this.corsProxy}${encodeURIComponent(`${this.baseUrl}/${sheetId}/values/${sheetName}!${range}?key=${apiKey}`)}`;
@@ -2771,7 +2886,6 @@
                 }
             }
 
-            // Write data to sheet
             async writeSheet(apiKey, sheetId, sheetName, range, values) {
                 try {
                     const url = `${this.corsProxy}${encodeURIComponent(`${this.baseUrl}/${sheetId}/values/${sheetName}!${range}?valueInputOption=USER_ENTERED&key=${apiKey}`)}`;
@@ -2810,7 +2924,6 @@
                 }
             }
 
-            // Append data to sheet
             async appendSheet(apiKey, sheetId, sheetName, values) {
                 try {
                     const url = `${this.corsProxy}${encodeURIComponent(`${this.baseUrl}/${sheetId}/values/${sheetName}!A:Z:append?valueInputOption=USER_ENTERED&key=${apiKey}`)}`;
@@ -2850,7 +2963,7 @@
         }
 
         // ============================================
-        // DATA MANAGEMENT WITH GOOGLE SHEETS SYNC
+        // DATA MANAGEMENT WITH DAILY FEE SYSTEM
         // ============================================
         
         class DataManager {
@@ -2858,6 +2971,7 @@
                 this.students = [];
                 this.fees = [];
                 this.payments = [];
+                this.attendanceLog = [];
                 this.lastReceiptNumber = 0;
                 this.googleSheets = new GoogleSheetsService();
                 this.syncEnabled = false;
@@ -2903,6 +3017,7 @@
                     localStorage.setItem('hfps_students', JSON.stringify(this.students));
                     localStorage.setItem('hfps_fees', JSON.stringify(this.fees));
                     localStorage.setItem('hfps_payments', JSON.stringify(this.payments));
+                    localStorage.setItem('hfps_attendance', JSON.stringify(this.attendanceLog));
                     localStorage.setItem('hfps_lastReceipt', this.lastReceiptNumber.toString());
                     
                     // Sync to Google Sheets if enabled
@@ -2923,17 +3038,20 @@
                     const savedStudents = localStorage.getItem('hfps_students');
                     const savedFees = localStorage.getItem('hfps_fees');
                     const savedPayments = localStorage.getItem('hfps_payments');
+                    const savedAttendance = localStorage.getItem('hfps_attendance');
                     const savedReceipt = localStorage.getItem('hfps_lastReceipt');
 
                     if (savedStudents) this.students = JSON.parse(savedStudents);
                     if (savedFees) this.fees = JSON.parse(savedFees);
                     if (savedPayments) this.payments = JSON.parse(savedPayments);
+                    if (savedAttendance) this.attendanceLog = JSON.parse(savedAttendance);
                     if (savedReceipt) this.lastReceiptNumber = parseInt(savedReceipt);
                 } catch (e) {
                     console.error('Error loading from localStorage:', e);
                     this.students = [];
                     this.fees = [];
                     this.payments = [];
+                    this.attendanceLog = [];
                     this.lastReceiptNumber = 0;
                 }
             }
@@ -2943,11 +3061,259 @@
                 this.students = [];
                 this.fees = [];
                 this.payments = [];
+                this.attendanceLog = [];
                 this.lastReceiptNumber = 0;
                 return true;
             }
 
-            // Sync to Google Sheets
+            // ============================================
+            // STUDENT OPERATIONS WITH DAILY FEE SYSTEM
+            // ============================================
+
+            addStudent(student) {
+                const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
+                
+                // Get the daily fee for this student's class
+                const classFees = this.getFee(student.class, student.term, student.year);
+                const dailyFee = classFees ? classFees.dailyFee : 0;
+                
+                const newStudent = {
+                    id: studentId,
+                    ...student,
+                    dailyFee: dailyFee, // Store daily fee with student
+                    balance: 0, // Start with 0 balance
+                    totalPaid: 0, // Track total payments
+                    attendanceDays: 0, // Track days attended
+                    totalDaysCharged: 0, // Track days to be charged
+                    lastAttendanceDate: null, // Track last attendance date
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    status: 'active'
+                };
+                
+                this.students.push(newStudent);
+                this.saveToLocalStorage();
+                return newStudent;
+            }
+
+            updateStudent(studentId, updates) {
+                const index = this.students.findIndex(s => s.id === studentId);
+                if (index !== -1) {
+                    this.students[index] = {
+                        ...this.students[index],
+                        ...updates,
+                        updatedAt: new Date().toISOString()
+                    };
+                    this.saveToLocalStorage();
+                    return this.students[index];
+                }
+                return null;
+            }
+
+            getStudent(studentId) {
+                return this.students.find(s => s.id === studentId);
+            }
+
+            getActiveStudents() {
+                return this.students.filter(s => s.status === 'active');
+            }
+
+            // ============================================
+            // ATTENDANCE OPERATIONS (DAILY FEE GENERATION)
+            // ============================================
+
+            markAttendance(studentId, date, markedBy = 'Administrator') {
+                const student = this.getStudent(studentId);
+                if (!student) return false;
+                
+                const attendanceDate = date || new Date().toISOString().split('T')[0];
+                
+                // Check if already marked for this date
+                const alreadyMarked = this.attendanceLog.find(a => 
+                    a.studentId === studentId && a.date === attendanceDate
+                );
+                
+                if (alreadyMarked) {
+                    return false; // Already marked
+                }
+                
+                // Calculate new balance (add daily fee)
+                const dailyFee = student.dailyFee || 0;
+                const newBalance = (student.balance || 0) + dailyFee;
+                
+                // Update student record
+                const updates = {
+                    attendanceDays: (student.attendanceDays || 0) + 1,
+                    totalDaysCharged: (student.totalDaysCharged || 0) + 1,
+                    balance: newBalance,
+                    lastAttendanceDate: attendanceDate,
+                    updatedAt: new Date().toISOString()
+                };
+                
+                this.updateStudent(studentId, updates);
+                
+                // Record attendance log
+                const attendanceRecord = {
+                    id: 'ATT' + String(this.attendanceLog.length + 1001).padStart(4, '0'),
+                    studentId: studentId,
+                    studentName: student.name,
+                    class: student.class,
+                    date: attendanceDate,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    dailyFee: dailyFee,
+                    balanceBefore: student.balance || 0,
+                    balanceAfter: newBalance,
+                    markedBy: markedBy,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.attendanceLog.push(attendanceRecord);
+                this.saveToLocalStorage();
+                
+                return true;
+            }
+
+            getAttendanceForDate(date) {
+                return this.attendanceLog.filter(a => a.date === date);
+            }
+
+            getStudentAttendance(studentId) {
+                return this.attendanceLog.filter(a => a.studentId === studentId)
+                    .sort((a, b) => new Date(b.date) - new Date(a.date));
+            }
+
+            // ============================================
+            // FEE OPERATIONS
+            // ============================================
+
+            addFee(fee) {
+                const newFee = {
+                    ...fee,
+                    updatedAt: new Date().toISOString(),
+                    updatedBy: document.getElementById('currentUser').textContent || 'Administrator'
+                };
+                
+                this.fees.push(newFee);
+                this.saveToLocalStorage();
+                return newFee;
+            }
+
+            updateFee(className, term, year, updates) {
+                const index = this.fees.findIndex(f => 
+                    f.class === className && f.term === term && f.year === year
+                );
+                
+                if (index !== -1) {
+                    this.fees[index] = {
+                        ...this.fees[index],
+                        ...updates,
+                        updatedAt: new Date().toISOString()
+                    };
+                    this.saveToLocalStorage();
+                    return this.fees[index];
+                }
+                return null;
+            }
+
+            getFee(className, term, year) {
+                return this.fees.find(f => 
+                    f.class === className && f.term === term && f.year === year
+                );
+            }
+
+            // ============================================
+            // PAYMENT OPERATIONS
+            // ============================================
+
+            addPayment(payment) {
+                this.lastReceiptNumber++;
+                const receiptNo = 'RCPT' + String(this.lastReceiptNumber).padStart(4, '0');
+                const newPayment = {
+                    id: 'PAY' + String(this.payments.length + 1001).padStart(4, '0'),
+                    receiptNo,
+                    ...payment,
+                    createdAt: new Date().toISOString()
+                };
+                
+                this.payments.push(newPayment);
+                
+                // Update student's total paid
+                const student = this.getStudent(payment.studentId);
+                if (student) {
+                    this.updateStudent(payment.studentId, {
+                        totalPaid: (student.totalPaid || 0) + payment.amount
+                    });
+                }
+                
+                this.saveToLocalStorage();
+                return newPayment;
+            }
+
+            getStudentPayments(studentId) {
+                return this.payments.filter(p => p.studentId === studentId);
+            }
+
+            getDailyPayments(date) {
+                return this.payments.filter(p => p.date === date);
+            }
+
+            // ============================================
+            // STATISTICS
+            // ============================================
+
+            getStatistics() {
+                const activeStudents = this.getActiveStudents();
+                const today = new Date().toISOString().split('T')[0];
+                const todayPayments = this.getDailyPayments(today);
+                const todayTotal = todayPayments.reduce((sum, p) => sum + p.amount, 0);
+                const totalCollected = this.payments.reduce((sum, p) => sum + p.amount, 0);
+                const totalOutstanding = activeStudents.reduce((sum, s) => sum + (s.balance || 0), 0);
+
+                return {
+                    totalStudents: activeStudents.length,
+                    todayCollection: todayTotal,
+                    todayPayments: todayPayments.length,
+                    totalCollected,
+                    totalOutstanding
+                };
+            }
+
+            // ============================================
+            // SEARCH FUNCTIONS
+            // ============================================
+
+            searchStudents(query, classFilter = 'all') {
+                const searchTerm = query.toLowerCase();
+                let filteredStudents = this.getActiveStudents();
+                
+                if (searchTerm) {
+                    filteredStudents = filteredStudents.filter(s => 
+                        s.name.toLowerCase().includes(searchTerm) || 
+                        s.id.toLowerCase().includes(searchTerm) ||
+                        (s.parentPhone && s.parentPhone.includes(searchTerm))
+                    );
+                }
+                
+                if (classFilter !== 'all') {
+                    filteredStudents = filteredStudents.filter(s => s.class === classFilter);
+                }
+                
+                return filteredStudents;
+            }
+
+            searchPayments(query) {
+                const searchTerm = query.toLowerCase();
+                return this.payments.filter(p => 
+                    p.receiptNo.toLowerCase().includes(searchTerm) || 
+                    p.studentName.toLowerCase().includes(searchTerm) ||
+                    p.studentId.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // ============================================
+            // GOOGLE SHEETS SYNC
+            // ============================================
+
             async syncToGoogleSheets() {
                 if (!this.syncEnabled || !CONFIG.GOOGLE_SHEETS.apiKey || !CONFIG.GOOGLE_SHEETS.sheetId) {
                     return false;
@@ -2957,14 +3323,10 @@
                     const apiKey = CONFIG.GOOGLE_SHEETS.apiKey;
                     const sheetId = CONFIG.GOOGLE_SHEETS.sheetId;
                     
-                    // Sync students
                     await this.syncStudentsToSheet(apiKey, sheetId);
-                    
-                    // Sync fees
                     await this.syncFeesToSheet(apiKey, sheetId);
-                    
-                    // Sync payments
                     await this.syncPaymentsToSheet(apiKey, sheetId);
+                    await this.syncAttendanceToSheet(apiKey, sheetId);
                     
                     console.log('Google Sheets sync completed');
                     return true;
@@ -2976,7 +3338,9 @@
 
             async syncStudentsToSheet(apiKey, sheetId) {
                 const sheetName = CONFIG.GOOGLE_SHEETS.sheets.students;
-                const headers = ['ID', 'Name', 'Gender', 'Class', 'Term', 'Year', 'Parent Phone', 'Balance', 'Status', 'Created At', 'Updated At'];
+                const headers = ['ID', 'Name', 'Gender', 'Class', 'Term', 'Year', 'Parent Phone', 
+                               'Daily Fee', 'Balance', 'Attendance Days', 'Total Paid', 'Status', 
+                               'Created At', 'Updated At'];
                 
                 const data = this.students.map(student => [
                     student.id,
@@ -2986,10 +3350,45 @@
                     student.term,
                     student.year,
                     student.parentPhone || '',
-                    student.balance,
+                    student.dailyFee || 0,
+                    student.balance || 0,
+                    student.attendanceDays || 0,
+                    student.totalPaid || 0,
                     student.status,
                     student.createdAt,
                     student.updatedAt
+                ]);
+                
+                const values = [headers, ...data];
+                
+                const result = await this.googleSheets.writeSheet(
+                    apiKey, 
+                    sheetId, 
+                    sheetName, 
+                    'A1', 
+                    values
+                );
+                
+                return result.success;
+            }
+
+            async syncAttendanceToSheet(apiKey, sheetId) {
+                const sheetName = CONFIG.GOOGLE_SHEETS.sheets.students + '_Attendance';
+                const headers = ['ID', 'Student ID', 'Student Name', 'Class', 'Date', 'Time', 
+                               'Daily Fee', 'Balance Before', 'Balance After', 'Marked By', 'Created At'];
+                
+                const data = this.attendanceLog.map(record => [
+                    record.id,
+                    record.studentId,
+                    record.studentName,
+                    record.class,
+                    record.date,
+                    record.time,
+                    record.dailyFee,
+                    record.balanceBefore,
+                    record.balanceAfter,
+                    record.markedBy,
+                    record.createdAt
                 ]);
                 
                 const values = [headers, ...data];
@@ -3066,265 +3465,10 @@
                 
                 return result.success;
             }
-
-            // Load from Google Sheets
-            async loadFromGoogleSheets() {
-                if (!this.syncEnabled || !CONFIG.GOOGLE_SHEETS.apiKey || !CONFIG.GOOGLE_SHEETS.sheetId) {
-                    return false;
-                }
-
-                try {
-                    const apiKey = CONFIG.GOOGLE_SHEETS.apiKey;
-                    const sheetId = CONFIG.GOOGLE_SHEETS.sheetId;
-                    
-                    // Load students
-                    await this.loadStudentsFromSheet(apiKey, sheetId);
-                    
-                    // Load fees
-                    await this.loadFeesFromSheet(apiKey, sheetId);
-                    
-                    // Load payments
-                    await this.loadPaymentsFromSheet(apiKey, sheetId);
-                    
-                    this.saveToLocalStorage();
-                    console.log('Google Sheets load completed');
-                    return true;
-                } catch (error) {
-                    console.error('Google Sheets load error:', error);
-                    return false;
-                }
-            }
-
-            async loadStudentsFromSheet(apiKey, sheetId) {
-                const sheetName = CONFIG.GOOGLE_SHEETS.sheets.students;
-                const result = await this.googleSheets.readSheet(apiKey, sheetId, sheetName);
-                
-                if (result.success && result.data.length > 1) {
-                    // Skip header row
-                    const rows = result.data.slice(1);
-                    this.students = rows.map(row => ({
-                        id: row[0] || '',
-                        name: row[1] || '',
-                        gender: row[2] || '',
-                        class: row[3] || '',
-                        term: row[4] || '',
-                        year: row[5] || '',
-                        parentPhone: row[6] || '',
-                        balance: parseFloat(row[7]) || 0,
-                        status: row[8] || 'active',
-                        createdAt: row[9] || new Date().toISOString(),
-                        updatedAt: row[10] || new Date().toISOString()
-                    }));
-                }
-            }
-
-            async loadFeesFromSheet(apiKey, sheetId) {
-                const sheetName = CONFIG.GOOGLE_SHEETS.sheets.fees;
-                const result = await this.googleSheets.readSheet(apiKey, sheetId, sheetName);
-                
-                if (result.success && result.data.length > 1) {
-                    // Skip header row
-                    const rows = result.data.slice(1);
-                    this.fees = rows.map(row => ({
-                        class: row[0] || '',
-                        term: row[1] || '',
-                        year: row[2] || '',
-                        dailyFee: parseFloat(row[3]) || 0,
-                        termFee: parseFloat(row[4]) || 0,
-                        updatedAt: row[5] || new Date().toISOString(),
-                        updatedBy: row[6] || 'System'
-                    }));
-                }
-            }
-
-            async loadPaymentsFromSheet(apiKey, sheetId) {
-                const sheetName = CONFIG.GOOGLE_SHEETS.sheets.payments;
-                const result = await this.googleSheets.readSheet(apiKey, sheetId, sheetName);
-                
-                if (result.success && result.data.length > 1) {
-                    // Skip header row
-                    const rows = result.data.slice(1);
-                    this.payments = rows.map(row => ({
-                        id: row[0] || '',
-                        receiptNo: row[1] || '',
-                        date: row[2] || '',
-                        time: row[3] || '',
-                        studentId: row[4] || '',
-                        studentName: row[5] || '',
-                        class: row[6] || '',
-                        amount: parseFloat(row[7]) || 0,
-                        method: row[8] || '',
-                        receiver: row[9] || '',
-                        balanceBefore: parseFloat(row[10]) || 0,
-                        balanceAfter: parseFloat(row[11]) || 0,
-                        notes: row[12] || '',
-                        createdAt: row[13] || new Date().toISOString()
-                    }));
-                    
-                    // Update last receipt number
-                    if (this.payments.length > 0) {
-                        const lastReceipt = this.payments.reduce((max, p) => {
-                            const num = parseInt(p.receiptNo.replace('RCPT', ''));
-                            return num > max ? num : max;
-                        }, 0);
-                        this.lastReceiptNumber = lastReceipt;
-                    }
-                }
-            }
-
-            addStudent(student) {
-    const studentId = 'STD' + String(this.students.length + 1001).padStart(4, '0');
-    
-    const newStudent = {
-        id: studentId,
-        ...student,
-        balance: student.balance || 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        status: 'active'
-    };
-    
-    this.students.push(newStudent);
-    this.saveToLocalStorage();
-    return newStudent;
-}
-            updateStudent(studentId, updates) {
-                const index = this.students.findIndex(s => s.id === studentId);
-                if (index !== -1) {
-                    this.students[index] = {
-                        ...this.students[index],
-                        ...updates,
-                        updatedAt: new Date().toISOString()
-                    };
-                    this.saveToLocalStorage();
-                    return this.students[index];
-                }
-                return null;
-            }
-
-            getStudent(studentId) {
-                return this.students.find(s => s.id === studentId);
-            }
-
-            getActiveStudents() {
-                return this.students.filter(s => s.status === 'active');
-            }
-
-            // Fee Operations
-            addFee(fee) {
-                const newFee = {
-                    ...fee,
-                    updatedAt: new Date().toISOString(),
-                    updatedBy: document.getElementById('currentUser').textContent || 'Administrator'
-                };
-                
-                this.fees.push(newFee);
-                this.saveToLocalStorage();
-                return newFee;
-            }
-
-            updateFee(className, term, year, updates) {
-                const index = this.fees.findIndex(f => 
-                    f.class === className && f.term === term && f.year === year
-                );
-                
-                if (index !== -1) {
-                    this.fees[index] = {
-                        ...this.fees[index],
-                        ...updates,
-                        updatedAt: new Date().toISOString()
-                    };
-                    this.saveToLocalStorage();
-                    return this.fees[index];
-                }
-                return null;
-            }
-
-            getFee(className, term, year) {
-                return this.fees.find(f => 
-                    f.class === className && f.term === term && f.year === year
-                );
-            }
-
-            // Payment Operations
-            addPayment(payment) {
-                this.lastReceiptNumber++;
-                const receiptNo = 'RCPT' + String(this.lastReceiptNumber).padStart(4, '0');
-                const newPayment = {
-                    id: 'PAY' + String(this.payments.length + 1001).padStart(4, '0'),
-                    receiptNo,
-                    ...payment,
-                    createdAt: new Date().toISOString()
-                };
-                
-                this.payments.push(newPayment);
-                this.saveToLocalStorage();
-                return newPayment;
-            }
-
-            getStudentPayments(studentId) {
-                return this.payments.filter(p => p.studentId === studentId);
-            }
-
-            getDailyPayments(date) {
-                return this.payments.filter(p => p.date === date);
-            }
-
-            // Statistics
-            getStatistics() {
-                const activeStudents = this.getActiveStudents();
-                const today = new Date().toISOString().split('T')[0];
-                const todayPayments = this.getDailyPayments(today);
-                const todayTotal = todayPayments.reduce((sum, p) => sum + p.amount, 0);
-                const totalCollected = this.payments.reduce((sum, p) => sum + p.amount, 0);
-                const totalOutstanding = activeStudents.reduce((sum, s) => sum + (s.balance || 0), 0);
-
-                return {
-                    totalStudents: activeStudents.length,
-                    todayCollection: todayTotal,
-                    todayPayments: todayPayments.length,
-                    totalCollected,
-                    totalOutstanding
-                };
-            }
-
-            // Search
-            searchStudents(query, classFilter = 'all') {
-                const searchTerm = query.toLowerCase();
-                let filteredStudents = this.getActiveStudents();
-                
-                if (searchTerm) {
-                    filteredStudents = filteredStudents.filter(s => 
-                        s.name.toLowerCase().includes(searchTerm) || 
-                        s.id.toLowerCase().includes(searchTerm) ||
-                        (s.parentPhone && s.parentPhone.includes(searchTerm))
-                    );
-                }
-                
-                if (classFilter !== 'all') {
-                    filteredStudents = filteredStudents.filter(s => s.class === classFilter);
-                }
-                
-                return filteredStudents;
-            }
-
-            searchPayments(query) {
-                const searchTerm = query.toLowerCase();
-                return this.payments.filter(p => 
-                    p.receiptNo.toLowerCase().includes(searchTerm) || 
-                    p.studentName.toLowerCase().includes(searchTerm) ||
-                    p.studentId.toLowerCase().includes(searchTerm)
-                );
-            }
         }
-
 
         // ============================================
         // APPLICATION CORE
-        // ============================================
-
-        // ============================================
-        // APPLICATION CORE - UPDATED FOR GITHUB
         // ============================================
 
         class HFPSApplication {
@@ -3336,41 +3480,7 @@
                 this.debouncedSearchPaymentStudent = this.debounce(this.searchPaymentStudent.bind(this), 300);
                 this.debouncedSearchReceipts = this.debounce(this.searchReceipts.bind(this), 300);
             }
-            markAttendance(studentId, date = null) {
-    const student = this.data.getStudent(studentId);
-    if (!student) {
-        toastr.error('Student not found');
-        return;
-    }
-    
-    if (!student.dailyFee || student.dailyFee === 0) {
-        toastr.error('No daily fee configured for this student');
-        return;
-    }
-    
-    const attendanceDate = date || this.getTodayDate();
-    
-    // Check if already marked for today
-    if (student.lastAttendanceDate === attendanceDate) {
-        toastr.info('Attendance already marked for today');
-        return;
-    }
-    
-    // Update student record
-    const updates = {
-        attendanceDays: (student.attendanceDays || 0) + 1,
-        totalDaysCharged: (student.totalDaysCharged || 0) + 1,
-        balance: (student.balance || 0) + student.dailyFee,
-        lastAttendanceDate: attendanceDate,
-        updatedAt: new Date().toISOString()
-    };
-    
-    this.data.updateStudent(studentId, updates);
-    toastr.success(`Attendance marked for ${student.name}. New balance: ₵${updates.balance.toFixed(2)}`);
-    
-    // Refresh display
-    this.loadStudents();
-}
+
             // ============================================
             // INITIALIZATION
             // ============================================
@@ -3435,6 +3545,9 @@
                     }
                 });
 
+                // Set attendance date to today
+                document.getElementById('attendanceDate').value = today;
+
                 // Update dashboard
                 this.updateDashboard();
             }
@@ -3455,128 +3568,6 @@
                     this.loadSampleData();
                 }
             }
-
-            // ============================================
-            // GOOGLE SHEETS CONFIGURATION - FIXED
-            // ============================================
-
-            async testSheetsConnection() {
-                const apiKey = document.getElementById('sheetsApiKey').value.trim();
-                const sheetId = document.getElementById('sheetId').value.trim();
-                
-                if (!apiKey || !sheetId) {
-                    toastr.error('Please enter API Key and Sheet ID');
-                    return;
-                }
-                
-                const result = await this.data.googleSheets.testConnection(apiKey, sheetId);
-                const resultDiv = document.getElementById('sheetsTestResult');
-                
-                if (result.success) {
-                    resultDiv.innerHTML = `
-                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 5px; border-left: 4px solid #4caf50;">
-                            <i class="fas fa-check-circle"></i> 
-                            <strong>Connection Successful!</strong>
-                            <p>${result.message}</p>
-                            <p>Google Sheets connection established successfully.</p>
-                        </div>
-                    `;
-                    resultDiv.style.display = 'block';
-                    toastr.success('Connection to Google Sheets successful');
-                } else {
-                    resultDiv.innerHTML = `
-                        <div style="background: #ffebee; padding: 1rem; border-radius: 5px; border-left: 4px solid #f44336;">
-                            <i class="fas fa-times-circle"></i> 
-                            <strong>Connection Failed!</strong>
-                            <p>Unable to connect to Google Sheets. Please check:</p>
-                            <ol>
-                                <li>API Key is correct and enabled for Google Sheets API</li>
-                                <li>Sheet ID is correct</li>
-                                <li>Sheet is shared with "Anyone with the link can view"</li>
-                                <li>Your API key doesn't have restrictions blocking the request</li>
-                            </ol>
-                            <p><small>Error: ${result.error}</small></p>
-                        </div>
-                    `;
-                    resultDiv.style.display = 'block';
-                    toastr.error('Connection to Google Sheets failed');
-                }
-            }
-
-            saveSheetsConfig() {
-                const apiKey = document.getElementById('sheetsApiKey').value.trim();
-                const sheetId = document.getElementById('sheetId').value.trim();
-                
-                if (!apiKey || !sheetId) {
-                    toastr.error('Please enter API Key and Sheet ID');
-                    return;
-                }
-                
-                const sheetNames = {
-                    students: document.getElementById('studentsSheet').value || 'Students',
-                    fees: document.getElementById('feesSheet').value || 'Fees',
-                    payments: document.getElementById('paymentsSheet').value || 'Payments',
-                    receipts: document.getElementById('receiptsSheet').value || 'Receipts'
-                };
-                
-                const success = this.data.saveSheetsConfig(apiKey, sheetId, sheetNames);
-                
-                if (success) {
-                    toastr.success('Google Sheets configuration saved successfully');
-                    this.closeSheetsConfig();
-                    this.loadPage('system-admin');
-                } else {
-                    toastr.error('Failed to save Google Sheets configuration');
-                }
-            }
-
-            showSheetsConfig() {
-                // Load existing config if any
-                if (CONFIG.GOOGLE_SHEETS.apiKey) {
-                    document.getElementById('sheetsApiKey').value = CONFIG.GOOGLE_SHEETS.apiKey;
-                }
-                if (CONFIG.GOOGLE_SHEETS.sheetId) {
-                    document.getElementById('sheetId').value = CONFIG.GOOGLE_SHEETS.sheetId;
-                }
-                if (CONFIG.GOOGLE_SHEETS.sheets) {
-                    document.getElementById('studentsSheet').value = CONFIG.GOOGLE_SHEETS.sheets.students;
-                    document.getElementById('feesSheet').value = CONFIG.GOOGLE_SHEETS.sheets.fees;
-                    document.getElementById('paymentsSheet').value = CONFIG.GOOGLE_SHEETS.sheets.payments;
-                    document.getElementById('receiptsSheet').value = CONFIG.GOOGLE_SHEETS.sheets.receipts;
-                }
-                
-                document.getElementById('sheetsConfigModal').classList.add('active');
-            }
-
-            closeSheetsConfig() {
-                document.getElementById('sheetsConfigModal').classList.remove('active');
-                document.getElementById('sheetsTestResult').style.display = 'none';
-            }
-
-            async syncToGoogleSheets() {
-                const success = await this.data.syncToGoogleSheets();
-                if (success) {
-                    toastr.success('Data synced to Google Sheets successfully');
-                } else {
-                    toastr.error('Failed to sync to Google Sheets. Check your configuration.');
-                }
-            }
-
-            async loadFromGoogleSheets() {
-                if (confirm('This will replace all local data with data from Google Sheets. Continue?')) {
-                    const success = await this.data.loadFromGoogleSheets();
-                    if (success) {
-                        toastr.success('Data loaded from Google Sheets successfully');
-                        this.updateDashboard();
-                        this.loadPage(this.currentPage);
-                    } else {
-                        toastr.error('Failed to load from Google Sheets. Check your configuration.');
-                    }
-                }
-            }
-
-            
-
 
             // ============================================
             // NAVIGATION
@@ -3627,6 +3618,9 @@
                         break;
                     case 'daily-summary':
                         this.loadDailySummary();
+                        break;
+                    case 'attendance':
+                        this.loadAttendanceStudents();
                         break;
                     case 'system-admin':
                         this.loadSystemAdmin();
@@ -3723,47 +3717,25 @@
             }
 
             saveStudent(event) {
-    event.preventDefault();
-    
-    const newStudent = {
-        name: document.getElementById('fullName').value.trim(),
-        gender: document.getElementById('gender').value,
-        class: document.getElementById('studentClass').value,
-        term: document.getElementById('academicTerm').value,
-        year: document.getElementById('academicYear').value,
-        parentPhone: document.getElementById('parentPhone').value.trim() || '',
-        attendanceDays: 0, // Track days attended
-        totalDaysCharged: 0 // Track days to be charged
-    };
-    
-    // LOOK UP AND ASSIGN THE DAILY FEE
-    const classFees = this.data.getFee(newStudent.class, newStudent.term, newStudent.year);
-    
-    if (classFees) {
-        newStudent.dailyFee = classFees.dailyFee;
-        newStudent.termFee = classFees.termFee;
-        // Initial balance is 0 because no days attended yet
-        newStudent.balance = 0;
-        newStudent.feesConfigured = true;
-    } else {
-        newStudent.dailyFee = 0;
-        newStudent.termFee = 0;
-        newStudent.balance = 0;
-        newStudent.feesConfigured = false;
-    }
-    
-    const student = this.data.addStudent(newStudent);
-    
-    this.hideAddStudentForm();
-    this.loadStudents();
-    this.updateDashboard();
-    
-    if (classFees) {
-        toastr.success(`${student.name} added with daily fee of ₵${classFees.dailyFee.toFixed(2)}`);
-    } else {
-        toastr.warning(`${student.name} added, but no fees configured for ${student.class}. Please set fees first.`);
-    }
-}
+                event.preventDefault();
+                
+                const newStudent = {
+                    name: document.getElementById('fullName').value.trim(),
+                    gender: document.getElementById('gender').value,
+                    class: document.getElementById('studentClass').value,
+                    term: document.getElementById('academicTerm').value,
+                    year: document.getElementById('academicYear').value,
+                    parentPhone: document.getElementById('parentPhone').value.trim() || ''
+                };
+                
+                const student = this.data.addStudent(newStudent);
+                
+                this.hideAddStudentForm();
+                this.loadStudents();
+                this.updateDashboard();
+                
+                toastr.success(`${student.name} added successfully with daily fee of ₵${student.dailyFee.toFixed(2)}`);
+            }
 
             loadStudents() {
                 const searchTerm = document.getElementById('searchStudents')?.value || '';
@@ -3778,48 +3750,48 @@
                 }
                 
                 table.innerHTML = filteredStudents.map(student => {
-        // Calculate what should be displayed
-        const dailyFee = student.dailyFee || 0;
-        const attendanceDays = student.attendanceDays || 0;
-        const calculatedBalance = dailyFee * attendanceDays - (student.totalPaid || 0);
-        const actualBalance = student.balance || 0;
-        
-        const statusClass = actualBalance === 0 ? 'paid' : actualBalance > 0 ? 'partial' : 'pending';
-        const statusText = actualBalance === 0 ? 'Paid' : actualBalance > 0 ? 'Partial' : 'Pending';
-        
-        return `
-            <tr>
-                <td>${student.id}</td>
-                <td>${student.name}</td>
-                <td>${student.gender}</td>
-                <td>${student.class}</td>
-                <td>${student.term}</td>
-                <td>${student.year}</td>
-                <td>
-                    <small>Daily: ₵${dailyFee.toFixed(2)}</small><br>
-                    <span class="${actualBalance === 0 ? 'text-success' : 'text-danger'}">
-                        ₵ ${actualBalance.toFixed(2)}
-                    </span>
-                </td>
-                <td>
-                    <span class="status-badge ${statusClass}">${statusText}</span><br>
-                    <small>Days: ${attendanceDays}</small>
-                </td>
-                <td>
-                    <button class="btn btn-primary btn-sm" onclick="app.viewStudent('${student.id}')" title="View">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-success btn-sm" onclick="app.markAttendance('${student.id}')" title="Mark Attendance">
-                        <i class="fas fa-calendar-check"></i>
-                    </button>
-                    <button class="btn btn-secondary btn-sm" onclick="app.editStudent('${student.id}')" title="Edit">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </td>
-            </tr>
-        `;
-    }).join('');
-}
+                    const dailyFee = student.dailyFee || 0;
+                    const attendanceDays = student.attendanceDays || 0;
+                    const totalCharged = dailyFee * attendanceDays;
+                    const totalPaid = student.totalPaid || 0;
+                    const balance = student.balance || 0;
+                    
+                    const statusClass = balance === 0 ? 'paid' : balance > 0 ? 'partial' : 'pending';
+                    const statusText = balance === 0 ? 'Paid' : balance > 0 ? 'Partial' : 'Pending';
+                    
+                    return `
+                        <tr>
+                            <td>${student.id}</td>
+                            <td>${student.name}</td>
+                            <td>${student.gender}</td>
+                            <td>${student.class}</td>
+                            <td>${student.term}</td>
+                            <td>${student.year}</td>
+                            <td>
+                                <small>Daily: ₵${dailyFee.toFixed(2)}</small><br>
+                                <span class="${balance === 0 ? 'text-success' : 'text-danger'}">
+                                    ₵ ${balance.toFixed(2)}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge ${statusClass}">${statusText}</span><br>
+                                <small>Days: ${attendanceDays}</small>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" onclick="app.viewStudent('${student.id}')" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-success btn-sm" onclick="app.collectFromStudent('${student.id}')" title="Collect Payment">
+                                    <i class="fas fa-money-bill"></i>
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="app.markAttendanceForStudent('${student.id}')" title="Mark Attendance">
+                                    <i class="fas fa-calendar-check"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
 
             filterStudents() {
                 this.loadStudents();
@@ -3834,16 +3806,17 @@
                 
                 const studentPayments = this.data.getStudentPayments(studentId);
                 const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                const classFees = this.data.getFee(student.class, student.term, student.year);
-                const initialBalance = classFees ? classFees.termFee : 0;
-                const termFee = classFees ? classFees.termFee : 0;
+                const attendanceRecords = this.data.getStudentAttendance(studentId);
+                const dailyFee = student.dailyFee || 0;
+                const attendanceDays = student.attendanceDays || 0;
+                const totalCharged = dailyFee * attendanceDays;
                 
                 const modalContent = `
                     <div class="student-details-modal">
                         <h3><i class="fas fa-user-graduate"></i> Student Details</h3>
                         <div class="info-box mb-3">
                             <i class="fas fa-info-circle"></i>
-                            <p>Student ID: <strong>${student.id}</strong></p>
+                            <p>Student ID: <strong>${student.id}</strong> | Daily Fee: <strong>₵${dailyFee.toFixed(2)}</strong></p>
                         </div>
                         
                         <div class="form-row">
@@ -3886,8 +3859,16 @@
                         <div class="fee-summary mt-3">
                             <h4><i class="fas fa-calculator"></i> Financial Summary</h4>
                             <div class="summary-row">
-                                <span>Total Term Fee:</span>
-                                <span>₵ ${termFee.toFixed(2)}</span>
+                                <span>Daily Fee:</span>
+                                <span>₵ ${dailyFee.toFixed(2)}</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Attendance Days:</span>
+                                <span>${attendanceDays} days</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Total Charged:</span>
+                                <span>₵ ${totalCharged.toFixed(2)}</span>
                             </div>
                             <div class="summary-row">
                                 <span>Total Paid:</span>
@@ -3901,9 +3882,37 @@
                             </div>
                         </div>
                         
+                        ${attendanceRecords.length > 0 ? `
+                            <div class="mt-3">
+                                <h4><i class="fas fa-calendar-check"></i> Recent Attendance</h4>
+                                <div class="table-container">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Daily Fee</th>
+                                                <th>Balance Before</th>
+                                                <th>Balance After</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            ${attendanceRecords.slice(0, 5).map(a => `
+                                                <tr>
+                                                    <td>${a.date}</td>
+                                                    <td>₵ ${a.dailyFee.toFixed(2)}</td>
+                                                    <td>₵ ${a.balanceBefore.toFixed(2)}</td>
+                                                    <td>₵ ${a.balanceAfter.toFixed(2)}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        ` : ''}
+                        
                         ${studentPayments.length > 0 ? `
                             <div class="mt-3">
-                                <h4><i class="fas fa-history"></i> Payment History</h4>
+                                <h4><i class="fas fa-history"></i> Recent Payments</h4>
                                 <div class="table-container">
                                     <table>
                                         <thead>
@@ -3916,7 +3925,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            ${studentPayments.map(p => `
+                                            ${studentPayments.slice(0, 5).map(p => `
                                                 <tr>
                                                     <td>${p.date}</td>
                                                     <td>${p.receiptNo}</td>
@@ -3935,296 +3944,216 @@
                 
                 this.showModal('Student Details', modalContent, [
                     { text: 'Collect Payment', class: 'btn-primary', onclick: `app.collectFromStudent('${studentId}')` },
-                    { text: 'Print Statement', class: 'btn-secondary', onclick: `app.printStudentStatement('${studentId}')` },
+                    { text: 'Mark Attendance', class: 'btn-success', onclick: `app.markAttendanceForStudent('${studentId}')` },
                     { text: 'Close', class: 'btn-secondary', onclick: 'app.closeModal()' }
                 ]);
             }
 
-            editStudent(studentId) {
-                const student = this.data.getStudent(studentId);
-                if (!student) {
-                    toastr.error('Student not found');
-                    return;
-                }
-                
-                const modalContent = `
-                    <div class="edit-student-form">
-                        <h3><i class="fas fa-edit"></i> Edit Student</h3>
-                        <form id="editStudentForm">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editFullName">Full Name *</label>
-                                    <input type="text" id="editFullName" value="${student.name}" required>
-                                </div>
-                                <div class="form-group">
-                                    <label for="editGender">Gender *</label>
-                                    <select id="editGender" required>
-                                        <option value="Male" ${student.gender === 'Male' ? 'selected' : ''}>Male</option>
-                                        <option value="Female" ${student.gender === 'Female' ? 'selected' : ''}>Female</option>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editStudentClass">Class *</label>
-                                    <select id="editStudentClass" required>
-                                        ${CONFIG.CLASSES.map(c => 
-                                            `<option value="${c}" ${student.class === c ? 'selected' : ''}>${c}</option>`
-                                        ).join('')}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="editAcademicTerm">Academic Term *</label>
-                                    <select id="editAcademicTerm" required>
-                                        ${CONFIG.TERMS.map(t => 
-                                            `<option value="${t}" ${student.term === t ? 'selected' : ''}>${t}</option>`
-                                        ).join('')}
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editAcademicYear">Academic Year *</label>
-                                    <select id="editAcademicYear" required>
-                                        ${CONFIG.YEARS.map(y => 
-                                            `<option value="${y}" ${student.year === y ? 'selected' : ''}>${y}</option>`
-                                        ).join('')}
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label for="editParentPhone">Parent's Phone</label>
-                                    <input type="tel" id="editParentPhone" value="${student.parentPhone || ''}" 
-                                           placeholder="+233 XX XXX XXXX">
-                                </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="editBalance">Current Balance (₵)</label>
-                                    <input type="number" id="editBalance" value="${student.balance.toFixed(2)}" 
-                                           min="0" step="0.01">
-                                </div>
-                                <div class="form-group">
-                                    <label for="editStatus">Status</label>
-                                    <select id="editStatus">
-                                        <option value="active" ${student.status === 'active' ? 'selected' : ''}>Active</option>
-                                        <option value="inactive" ${student.status === 'inactive' ? 'selected' : ''}>Inactive</option>
-                                        <option value="graduated" ${student.status === 'graduated' ? 'selected' : ''}>Graduated</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                `;
-                
-                this.showModal('Edit Student', modalContent, [
-                    { text: 'Save Changes', class: 'btn-primary', onclick: `app.updateStudent('${studentId}')` },
-                    { text: 'Cancel', class: 'btn-secondary', onclick: 'app.closeModal()' }
-                ]);
-            }
-
-            updateStudent(studentId) {
-                const updatedStudent = {
-                    name: document.getElementById('editFullName').value.trim(),
-                    gender: document.getElementById('editGender').value,
-                    class: document.getElementById('editStudentClass').value,
-                    term: document.getElementById('editAcademicTerm').value,
-                    year: document.getElementById('editAcademicYear').value,
-                    parentPhone: document.getElementById('editParentPhone').value.trim(),
-                    balance: parseFloat(document.getElementById('editBalance').value) || 0,
-                    status: document.getElementById('editStatus').value
-                };
-                
-                const result = this.data.updateStudent(studentId, updatedStudent);
-                
-                if (result) {
-                    this.loadStudents();
-                    this.updateDashboard();
-                    this.closeModal();
-                    toastr.success('Student updated successfully');
-                } else {
-                    toastr.error('Failed to update student');
-                }
-            }
-
-            archiveStudent(studentId) {
-                if (confirm('Are you sure you want to archive this student? They will be hidden from active lists.')) {
-                    const result = this.data.updateStudent(studentId, { status: 'archived' });
-                    
-                    if (result) {
-                        this.loadStudents();
-                        toastr.success('Student archived successfully');
+            markAttendanceForStudent(studentId) {
+                this.loadPage('attendance');
+                setTimeout(() => {
+                    const student = this.data.getStudent(studentId);
+                    if (student) {
+                        document.getElementById('attendanceClassFilter').value = student.class;
+                        this.loadAttendanceStudents();
+                        
+                        // Find and mark the student
+                        setTimeout(() => {
+                            const studentItems = document.querySelectorAll('.attendance-student-item');
+                            studentItems.forEach(item => {
+                                if (item.dataset.studentId === studentId) {
+                                    const checkbox = item.querySelector('.attendance-checkbox');
+                                    if (checkbox) {
+                                        checkbox.checked = true;
+                                    }
+                                }
+                            });
+                        }, 500);
                     }
-                }
-            }
-
-            exportStudentsCSV() {
-                if (this.data.students.length === 0) {
-                    toastr.warning('No students to export');
-                    return;
-                }
-                
-                const headers = ['Student ID', 'Name', 'Gender', 'Class', 'Term', 'Year', 'Parent Phone', 'Balance', 'Status'];
-                const data = this.data.students.map(s => [
-                    s.id,
-                    s.name,
-                    s.gender,
-                    s.class,
-                    s.term,
-                    s.year,
-                    s.parentPhone || '',
-                    s.balance.toFixed(2),
-                    s.status
-                ]);
-                
-                this.exportToCSV('students', headers, data);
+                }, 100);
             }
 
             // ============================================
-            // FEES MANAGEMENT
+            // DAILY ATTENDANCE & FEE GENERATION
             // ============================================
 
-            toggleFeeFields() {
-                const feeType = document.getElementById('feeType').value;
-                document.getElementById('dailyFeeGroup').style.display = 
-                    (feeType === 'both' || feeType === 'daily') ? 'block' : 'none';
-                document.getElementById('termFeeGroup').style.display = 
-                    (feeType === 'both' || feeType === 'term') ? 'block' : 'none';
+            loadAttendanceStudents() {
+                const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+                const classFilter = document.getElementById('attendanceClassFilter').value || 'all';
                 
-                const dailyRequired = (feeType === 'both' || feeType === 'daily');
-                const termRequired = (feeType === 'both' || feeType === 'term');
+                // Display date
+                document.getElementById('attendanceDateDisplay').textContent = date;
                 
-                document.getElementById('dailyFee').required = dailyRequired;
-                document.getElementById('termFee').required = termRequired;
-            }
-
-            loadClassFees() {
-                const classVal = document.getElementById('feeClass').value;
-                const termVal = document.getElementById('feeTerm').value;
-                const yearVal = document.getElementById('feeYear').value;
+                // Get students for attendance
+                let students = this.data.getActiveStudents();
                 
-                if (!classVal || !termVal || !yearVal) return;
-                
-                const existingFees = this.data.getFee(classVal, termVal, yearVal);
-                const infoDiv = document.getElementById('currentFeesInfo');
-                
-                if (existingFees) {
-                    document.getElementById('dailyFee').value = existingFees.dailyFee;
-                    document.getElementById('termFee').value = existingFees.termFee;
-                    document.getElementById('currentFeesText').textContent = 
-                        `Current fees: Daily - ₵${existingFees.dailyFee.toFixed(2)}, Term - ₵${existingFees.termFee.toFixed(2)} (Updated: ${this.formatDate(existingFees.updatedAt)})`;
-                    infoDiv.style.display = 'block';
-                } else {
-                    document.getElementById('dailyFee').value = '';
-                    document.getElementById('termFee').value = '';
-                    infoDiv.style.display = 'none';
-                }
-            }
-
-            saveFees(event) {
-                event.preventDefault();
-                
-                const classFees = {
-                    class: document.getElementById('feeClass').value,
-                    term: document.getElementById('feeTerm').value,
-                    year: document.getElementById('feeYear').value,
-                    dailyFee: parseFloat(document.getElementById('dailyFee').value) || 0,
-                    termFee: parseFloat(document.getElementById('termFee').value) || 0
-                };
-                
-                const existingFees = this.data.getFee(classFees.class, classFees.term, classFees.year);
-                
-                if (existingFees) {
-                    this.data.updateFee(classFees.class, classFees.term, classFees.year, classFees);
-                    toastr.info(`Fees for ${classFees.class} updated successfully`);
-                } else {
-                    this.data.addFee(classFees);
-                    toastr.success(`Fees for ${classFees.class} saved successfully`);
+                if (classFilter !== 'all') {
+                    students = students.filter(s => s.class === classFilter);
                 }
                 
-                document.getElementById('feesForm').reset();
-                this.loadFeesTable();
-            }
-
-            loadFeesTable() {
-                const table = document.getElementById('feesTable');
+                // Get today's attendance
+                const todayAttendance = this.data.getAttendanceForDate(date);
+                const markedStudentIds = todayAttendance.map(a => a.studentId);
                 
-                if (this.data.fees.length === 0) {
-                    table.innerHTML = '<tr><td colspan="8" class="text-center">No fees configured yet</td></tr>';
+                // Update counters
+                document.getElementById('attendanceTotalStudents').textContent = students.length;
+                document.getElementById('attendanceMarkedToday').textContent = markedStudentIds.length;
+                
+                // Display students
+                const list = document.getElementById('attendanceStudentsList');
+                
+                if (students.length === 0) {
+                    list.innerHTML = '<div class="loading">No students found for selected class</div>';
                     return;
                 }
                 
-                table.innerHTML = this.data.fees.map(fee => {
-                    const totalDays = fee.termFee / (fee.dailyFee || 1);
+                list.innerHTML = students.map(student => {
+                    const isMarked = markedStudentIds.includes(student.id);
+                    const dailyFee = student.dailyFee || 0;
+                    
                     return `
-                        <tr>
-                            <td>${fee.class}</td>
-                            <td>${fee.term}</td>
-                            <td>${fee.year}</td>
-                            <td>₵ ${fee.dailyFee.toFixed(2)}</td>
-                            <td>₵ ${fee.termFee.toFixed(2)}</td>
-                            <td>${Math.round(totalDays)} days</td>
-                            <td>${this.formatDate(fee.updatedAt)}</td>
-                            <td>
-                                <button class="btn btn-secondary btn-sm" onclick="app.editFees('${fee.class}', '${fee.term}', '${fee.year}')" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="app.deleteFees('${fee.class}', '${fee.term}', '${fee.year}')" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        <div class="attendance-student-item student-item ${isMarked ? 'active' : ''}" data-student-id="${student.id}">
+                            <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                <input type="checkbox" class="attendance-checkbox" 
+                                       ${isMarked ? 'checked disabled' : ''}
+                                       onchange="app.toggleAttendance('${student.id}', this.checked)"
+                                       style="width: 20px; height: 20px;">
+                                <div style="flex: 1;">
+                                    <div class="student-name">${student.name}</div>
+                                    <div class="student-details">
+                                        <span class="student-id">${student.id}</span> | 
+                                        <span class="student-class">${student.class}</span> | 
+                                        <span class="student-fee">Daily: ₵${dailyFee.toFixed(2)}</span> |
+                                        <span class="student-balance ${student.balance === 0 ? 'text-success' : 'text-danger'}">
+                                            Balance: ₵${student.balance.toFixed(2)}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="color: ${isMarked ? 'green' : 'orange'};">
+                                    <i class="fas ${isMarked ? 'fa-check-circle' : 'fa-clock'}"></i>
+                                    ${isMarked ? 'Marked' : 'Pending'}
+                                </div>
+                            </div>
+                        </div>
                     `;
                 }).join('');
+                
+                // Update attendance log table
+                this.updateAttendanceLogTable(date);
             }
 
-            editFees(className, term, year) {
-                document.getElementById('feeClass').value = className;
-                document.getElementById('feeTerm').value = term;
-                document.getElementById('feeYear').value = year;
-                this.loadClassFees();
-                document.getElementById('feeClass').scrollIntoView({ behavior: 'smooth' });
-            }
-
-            deleteFees(className, term, year) {
-                if (confirm(`Delete fees for ${className} - ${term} ${year}?`)) {
-                    // Implementation for deleting fees
-                    toastr.info('Fees deletion functionality needs to be implemented');
+            toggleAttendance(studentId, isChecked) {
+                const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+                
+                if (isChecked) {
+                    const success = this.data.markAttendance(studentId, date);
+                    if (success) {
+                        toastr.success('Attendance marked successfully');
+                    } else {
+                        toastr.warning('Attendance already marked for today');
+                    }
                 }
+                
+                // Refresh the display
+                setTimeout(() => {
+                    this.loadAttendanceStudents();
+                }, 100);
             }
 
-            resetFeesForm() {
-                document.getElementById('feesForm').reset();
-                document.getElementById('currentFeesInfo').style.display = 'none';
-                document.getElementById('dailyFee').value = '5.00';
-                document.getElementById('termFee').value = '300.00';
+            markAllAttendance() {
+                const date = document.getElementById('attendanceDate').value || this.getTodayDate();
+                const classFilter = document.getElementById('attendanceClassFilter').value || 'all';
+                
+                let students = this.data.getActiveStudents();
+                if (classFilter !== 'all') {
+                    students = students.filter(s => s.class === classFilter);
+                }
+                
+                const todayAttendance = this.data.getAttendanceForDate(date);
+                const markedStudentIds = todayAttendance.map(a => a.studentId);
+                
+                let markedCount = 0;
+                students.forEach(student => {
+                    if (!markedStudentIds.includes(student.id)) {
+                        const success = this.data.markAttendance(student.id, date);
+                        if (success) markedCount++;
+                    }
+                });
+                
+                toastr.success(`Marked attendance for ${markedCount} students`);
+                this.loadAttendanceStudents();
             }
 
-            exportFeesCSV() {
-                if (this.data.fees.length === 0) {
-                    toastr.warning('No fees to export');
+            updateAttendanceLogTable(date) {
+                const table = document.getElementById('attendanceLogTable');
+                const attendanceRecords = this.data.getAttendanceForDate(date);
+                
+                if (attendanceRecords.length === 0) {
+                    table.innerHTML = '<tr><td colspan="8" class="text-center">No attendance marked for selected date</td></tr>';
                     return;
                 }
                 
-                const headers = ['Class', 'Term', 'Year', 'Daily Fee', 'Term Fee', 'Total Days', 'Last Updated', 'Updated By'];
-                const data = this.data.fees.map(f => [
-                    f.class,
-                    f.term,
-                    f.year,
-                    f.dailyFee.toFixed(2),
-                    f.termFee.toFixed(2),
-                    Math.round(f.termFee / (f.dailyFee || 1)),
-                    this.formatDate(f.updatedAt),
-                    f.updatedBy || 'System'
-                ]);
-                
-                this.exportToCSV('fees', headers, data);
+                table.innerHTML = attendanceRecords.map(record => `
+                    <tr>
+                        <td>${record.studentName}</td>
+                        <td>${record.class}</td>
+                        <td>₵ ${record.dailyFee.toFixed(2)}</td>
+                        <td>
+                            <span class="status-badge ${record.balanceAfter > record.balanceBefore ? 'partial' : 'paid'}">
+                                ${record.balanceAfter > record.balanceBefore ? 'Fee Added' : 'No Fee'}
+                            </span>
+                        </td>
+                        <td>₵ ${record.balanceBefore.toFixed(2)}</td>
+                        <td>₵ ${record.balanceAfter.toFixed(2)}</td>
+                        <td>${record.time}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="app.removeAttendance('${record.id}')" title="Remove">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            removeAttendance(attendanceId) {
+                if (confirm('Are you sure you want to remove this attendance record? This will reverse the daily fee charge.')) {
+                    const attendanceRecord = this.data.attendanceLog.find(a => a.id === attendanceId);
+                    if (!attendanceRecord) {
+                        toastr.error('Attendance record not found');
+                        return;
+                    }
+                    
+                    // Remove from attendance log
+                    this.data.attendanceLog = this.data.attendanceLog.filter(a => a.id !== attendanceId);
+                    
+                    // Update student record to reverse the charge
+                    const student = this.data.getStudent(attendanceRecord.studentId);
+                    if (student) {
+                        const updates = {
+                            attendanceDays: Math.max(0, (student.attendanceDays || 0) - 1),
+                            totalDaysCharged: Math.max(0, (student.totalDaysCharged || 0) - 1),
+                            balance: Math.max(0, (student.balance || 0) - attendanceRecord.dailyFee),
+                            updatedAt: new Date().toISOString()
+                        };
+                        this.data.updateStudent(student.id, updates);
+                    }
+                    
+                    this.data.saveToLocalStorage();
+                    toastr.success('Attendance record removed and fee reversed');
+                    
+                    // Refresh display
+                    this.loadAttendanceStudents();
+                    this.loadStudents();
+                    this.updateDashboard();
+                }
+            }
+
+            saveAttendance() {
+                toastr.success('Attendance saved automatically as you mark students');
             }
 
             // ============================================
-            // PAYMENT COLLECTION
+            // PAYMENT COLLECTION WITH DAILY FEE SYSTEM
             // ============================================
 
             loadPaymentStudents() {
@@ -4240,14 +4169,21 @@
                 }
                 
                 list.innerHTML = filteredStudents.map(student => {
-                    const balanceClass = student.balance === 0 ? 'text-success' : 'text-danger';
+                    const dailyFee = student.dailyFee || 0;
+                    const attendanceDays = student.attendanceDays || 0;
+                    const totalCharged = dailyFee * attendanceDays;
+                    const totalPaid = student.totalPaid || 0;
+                    const balance = student.balance || 0;
+                    
+                    const balanceClass = balance === 0 ? 'text-success' : 'text-danger';
                     return `
                         <div class="student-item" onclick="app.selectStudentForPayment('${student.id}')">
                             <div class="student-name">${student.name}</div>
                             <div class="student-details">
                                 <span class="student-id">${student.id}</span> | 
                                 <span class="student-class">${student.class}</span> | 
-                                <span class="student-balance ${balanceClass}">Balance: ₵${student.balance.toFixed(2)}</span>
+                                <span>Days: ${attendanceDays}</span> |
+                                <span class="student-balance ${balanceClass}">Balance: ₵${balance.toFixed(2)}</span>
                             </div>
                         </div>
                     `;
@@ -4272,10 +4208,10 @@
                     item.classList.remove('active');
                 });
                 
-                const selectedItem = document.querySelector(`.student-item .student-id`);
-                if (selectedItem && selectedItem.textContent === studentId) {
-                    selectedItem.closest('.student-item').classList.add('active');
-                }
+                const selectedItem = Array.from(document.querySelectorAll('.student-item')).find(item => 
+                    item.querySelector('.student-id')?.textContent === studentId
+                );
+                if (selectedItem) selectedItem.classList.add('active');
                 
                 // Show student info
                 document.getElementById('selectedStudentInfo').style.display = 'block';
@@ -4290,19 +4226,27 @@
                 document.getElementById('paymentSuccess').style.display = 'none';
                 document.getElementById('noStudentSelected').style.display = 'none';
                 
-                    // Calculate fee summary differently
-    const dailyFee = student.dailyFee || 0;
-    const attendanceDays = student.attendanceDays || 0;
-    const totalCharged = dailyFee * attendanceDays;
-    const studentPayments = this.data.getStudentPayments(student.id);
-    const paidAlready = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-    const balanceDue = Math.max(0, totalCharged - paidAlready);
-    
-    // Update display
-    document.getElementById('termFeeDisplay').textContent = `Daily: ₵ ${dailyFee.toFixed(2)} × ${attendanceDays} days = ₵ ${totalCharged.toFixed(2)}`;
-    document.getElementById('paidAlready').textContent = `₵ ${paidAlready.toFixed(2)}`;
-    document.getElementById('balanceDue').textContent = `₵ ${balanceDue.toFixed(2)}`;
+                // Calculate fee summary
+                const dailyFee = student.dailyFee || 0;
+                const attendanceDays = student.attendanceDays || 0;
+                const totalCharged = dailyFee * attendanceDays;
+                const totalPaid = student.totalPaid || 0;
+                const balanceDue = student.balance || 0;
+                
+                // Update display
+                document.getElementById('dailyFeeDisplay').textContent = `₵ ${dailyFee.toFixed(2)}`;
+                document.getElementById('attendanceDaysDisplay').textContent = `${attendanceDays} days`;
+                document.getElementById('totalCharged').textContent = `₵ ${totalCharged.toFixed(2)}`;
+                document.getElementById('paidAlready').textContent = `₵ ${totalPaid.toFixed(2)}`;
                 document.getElementById('balanceDue').textContent = `₵ ${balanceDue.toFixed(2)}`;
+                
+                // Set max payment amount
+                document.getElementById('paymentAmount').max = balanceDue;
+                document.getElementById('paymentAmount').value = balanceDue;
+                
+                // Set payment date to today
+                document.getElementById('paymentDate').value = this.getTodayDate();
+            }
 
             updatePaymentAmount() {
                 const amount = parseFloat(document.getElementById('paymentAmount').value) || 0;
@@ -4367,7 +4311,10 @@
                 const savedPayment = this.data.addPayment(payment);
                 
                 // Update student balance
-                this.data.updateStudent(student.id, { balance: newBalance, lastPaymentDate: date });
+                this.data.updateStudent(student.id, { 
+                    balance: newBalance,
+                    lastPaymentDate: date
+                });
                 
                 // Generate receipt
                 this.generateA4Receipt(savedPayment);
@@ -4383,6 +4330,7 @@
                 // Update dashboard
                 this.updateDashboard();
                 this.loadPaymentStudents();
+                this.loadStudents();
                 
                 toastr.success(`Payment of ₵${amount.toFixed(2)} recorded successfully`);
             }
@@ -4631,34 +4579,331 @@
                 printWindow.document.close();
             }
 
-            downloadReceiptPDF() {
-                toastr.info('PDF download feature requires additional libraries. Use Print to PDF instead.');
+            generateA4Receipt(payment) {
+                const student = this.data.getStudent(payment.studentId) || this.data.selectedStudent;
+                if (!student) return;
+                
+                const dailyFee = student.dailyFee || 0;
+                const attendanceDays = student.attendanceDays || 0;
+                const totalCharged = dailyFee * attendanceDays;
+                const studentPayments = this.data.getStudentPayments(student.id);
+                const paidBefore = studentPayments.filter(p => p.receiptNo !== payment.receiptNo)
+                    .reduce((sum, p) => sum + p.amount, 0);
+                const paidSoFar = paidBefore + payment.amount;
+                
+                const receiptHTML = `
+                    <div class="receipt-a4">
+                        <div class="receipt-header">
+                            <div class="receipt-school-name">HOME FIELD PREPARATORY SCHOOL</div>
+                            <div style="font-size: 11pt; margin: 5px 0;">Learners Today, Leaders Tomorrow</div>
+                            <div style="font-size: 10pt; margin: 5px 0;">24 HILLS, BEHIND ASSEMBLIES OF GOD CHURCH | Tel: 024 354 8843</div>
+                            
+                            <div class="receipt-title">OFFICIAL FEE PAYMENT RECEIPT</div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin: 20px 0;">
+                            <div>
+                                <strong>Receipt No:</strong> ${payment.receiptNo}<br>
+                                <strong>Date:</strong> ${payment.date}<br>
+                                <strong>Time:</strong> ${payment.time}
+                            </div>
+                            <div style="text-align: right;">
+                                <strong>Student ID:</strong> ${student.id}<br>
+                                <strong>Academic Year:</strong> ${student.year}<br>
+                                <strong>Term:</strong> ${student.term}
+                            </div>
+                        </div>
+                        
+                        <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <div>
+                                    <strong>Student Name:</strong> ${student.name}<br>
+                                    <strong>Class:</strong> ${student.class}<br>
+                                    <strong>Gender:</strong> ${student.gender}
+                                </div>
+                                <div style="text-align: right;">
+                                    <strong>Parent/Guardian:</strong><br>
+                                    ${student.parentPhone ? `Phone: ${student.parentPhone}` : 'N/A'}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <table class="receipt-details">
+                            <thead>
+                                <tr>
+                                    <th style="width: 70%;">Description</th>
+                                    <th style="width: 30%; text-align: right;">Amount (₵)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Daily School Fees - ${student.class} (${student.term} ${student.year})</td>
+                                    <td style="text-align: right;">${totalCharged.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Breakdown: ₵${dailyFee.toFixed(2)} × ${attendanceDays} days</td>
+                                    <td style="text-align: right;"></td>
+                                </tr>
+                                <tr>
+                                    <td>Amount Previously Paid</td>
+                                    <td style="text-align: right;">${paidBefore.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Current Payment Received</strong></td>
+                                    <td style="text-align: right; font-weight: bold;">${payment.amount.toFixed(2)}</td>
+                                </tr>
+                                <tr style="background: #f5f5f5;">
+                                    <td><strong>TOTAL PAID TO DATE</strong></td>
+                                    <td style="text-align: right; font-weight: bold;">${paidSoFar.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>BALANCE OUTSTANDING</strong></td>
+                                    <td style="text-align: right; font-weight: bold; ${payment.balanceAfter === 0 ? 'color: green;' : 'color: red;'}">
+                                        ${payment.balanceAfter.toFixed(2)}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div style="margin: 20px 0;">
+                            <strong>Payment Details:</strong><br>
+                            <div style="margin-left: 20px; margin-top: 5px;">
+                                <strong>Method:</strong> ${payment.method}<br>
+                                ${payment.momoNumber ? `<strong>MoMo Number:</strong> ${payment.momoNumber}<br>` : ''}
+                                ${payment.bankReference ? `<strong>Bank Reference:</strong> ${payment.bankReference}<br>` : ''}
+                                <strong>Received By:</strong> ${payment.receiver}<br>
+                                ${payment.notes ? `<strong>Notes:</strong> ${payment.notes}<br>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="amount-in-words">
+                            <strong>Amount in Words:</strong> ${this.amountToWords(payment.amount)}
+                        </div>
+                        
+                        <div style="margin: 30px 0; padding: 20px; border: 2px solid #000; border-radius: 5px; text-align: center;">
+                            <div style="font-size: 14pt; font-weight: bold; margin-bottom: 10px;">AMOUNT RECEIVED</div>
+                            <div style="font-size: 20pt; font-weight: bold; color: #000;">GHANA CEDIS ₵${payment.amount.toFixed(2)}</div>
+                        </div>
+                        
+                        <div class="receipt-footer">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+                                <div class="receipt-signature">
+                                    <div class="signature-line"></div>
+                                    <div style="margin-top: 5px;">Student/Parent Signature</div>
+                                </div>
+                                <div class="receipt-signature">
+                                    <div class="signature-line"></div>
+                                    <div style="margin-top: 5px;">School Bursar Signature</div>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; font-size: 9pt; color: #666;">
+                                <div style="border-top: 1px solid #666; padding-top: 10px; margin-top: 20px;">
+                                    <strong>IMPORTANT NOTICE:</strong><br>
+                                    Please keep this receipt for reference. All payments are non-refundable.<br>
+                                    For any queries, contact the school administration during working hours.
+                                </div>
+                                <div style="margin-top: 10px;">
+                                    Receipt generated on: ${new Date().toLocaleString()}<br>
+                                    Computer Generated Receipt - Valid without school stamp
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('receiptForPrint').innerHTML = receiptHTML;
             }
 
-            exportReceiptsCSV() {
-                if (this.data.payments.length === 0) {
-                    toastr.warning('No receipts to export');
+            amountToWords(num) {
+                const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+                const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+                const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+                
+                if (num === 0) return 'Zero Ghana Cedis Only';
+                
+                let words = '';
+                const whole = Math.floor(num);
+                const cents = Math.round((num - whole) * 100);
+                
+                if (whole > 0) {
+                    if (whole >= 1000) {
+                        const thousands = Math.floor(whole / 1000);
+                        words += ones[thousands] + ' Thousand ';
+                        const remainder = whole % 1000;
+                        if (remainder > 0) {
+                            words += this.amountToWords(remainder).replace(' Ghana Cedis Only', '');
+                        }
+                    } else if (whole >= 100) {
+                        words += ones[Math.floor(whole / 100)] + ' Hundred ';
+                        const remainder = whole % 100;
+                        if (remainder > 0) {
+                            words += this.amountToWords(remainder).replace(' Ghana Cedis Only', '');
+                        }
+                    } else if (whole >= 20) {
+                        words += tens[Math.floor(whole / 10)] + ' ';
+                        const remainder = whole % 10;
+                        if (remainder > 0) {
+                            words += ones[remainder] + ' ';
+                        }
+                    } else if (whole >= 10) {
+                        words += teens[whole - 10] + ' ';
+                    } else if (whole > 0) {
+                        words += ones[whole] + ' ';
+                    }
+                    
+                    words += 'Cedis';
+                }
+                
+                if (cents > 0) {
+                    if (words) words += ' and ';
+                    if (cents >= 20) {
+                        words += tens[Math.floor(cents / 10)] + ' ';
+                        const remainder = cents % 10;
+                        if (remainder > 0) {
+                            words += ones[remainder] + ' ';
+                        }
+                    } else if (cents >= 10) {
+                        words += teens[cents - 10] + ' ';
+                    } else if (cents > 0) {
+                        words += ones[cents] + ' ';
+                    }
+                    words += 'Pesewas';
+                }
+                
+                return words.trim() + ' Only';
+            }
+
+            // ============================================
+            // FEES MANAGEMENT
+            // ============================================
+
+            toggleFeeFields() {
+                const feeType = document.getElementById('feeType').value;
+                document.getElementById('dailyFeeGroup').style.display = 
+                    (feeType === 'both' || feeType === 'daily') ? 'block' : 'none';
+                document.getElementById('termFeeGroup').style.display = 
+                    (feeType === 'both' || feeType === 'term') ? 'block' : 'none';
+                
+                const dailyRequired = (feeType === 'both' || feeType === 'daily');
+                const termRequired = (feeType === 'both' || feeType === 'term');
+                
+                document.getElementById('dailyFee').required = dailyRequired;
+                document.getElementById('termFee').required = termRequired;
+            }
+
+            loadClassFees() {
+                const classVal = document.getElementById('feeClass').value;
+                const termVal = document.getElementById('feeTerm').value;
+                const yearVal = document.getElementById('feeYear').value;
+                
+                if (!classVal || !termVal || !yearVal) return;
+                
+                const existingFees = this.data.getFee(classVal, termVal, yearVal);
+                const infoDiv = document.getElementById('currentFeesInfo');
+                
+                if (existingFees) {
+                    document.getElementById('dailyFee').value = existingFees.dailyFee;
+                    document.getElementById('termFee').value = existingFees.termFee;
+                    document.getElementById('currentFeesText').textContent = 
+                        `Current fees: Daily - ₵${existingFees.dailyFee.toFixed(2)}, Term - ₵${existingFees.termFee.toFixed(2)} (Updated: ${this.formatDate(existingFees.updatedAt)})`;
+                    infoDiv.style.display = 'block';
+                } else {
+                    document.getElementById('dailyFee').value = '';
+                    document.getElementById('termFee').value = '';
+                    infoDiv.style.display = 'none';
+                }
+            }
+
+            saveFees(event) {
+                event.preventDefault();
+                
+                const classFees = {
+                    class: document.getElementById('feeClass').value,
+                    term: document.getElementById('feeTerm').value,
+                    year: document.getElementById('feeYear').value,
+                    dailyFee: parseFloat(document.getElementById('dailyFee').value) || 0,
+                    termFee: parseFloat(document.getElementById('termFee').value) || 0
+                };
+                
+                const existingFees = this.data.getFee(classFees.class, classFees.term, classFees.year);
+                
+                if (existingFees) {
+                    this.data.updateFee(classFees.class, classFees.term, classFees.year, classFees);
+                    toastr.info(`Fees for ${classFees.class} updated successfully`);
+                } else {
+                    this.data.addFee(classFees);
+                    toastr.success(`Fees for ${classFees.class} saved successfully`);
+                }
+                
+                // Update students with new daily fee
+                this.updateStudentsDailyFee(classFees);
+                
+                document.getElementById('feesForm').reset();
+                this.loadFeesTable();
+            }
+
+            updateStudentsDailyFee(classFees) {
+                // Update daily fee for all active students in this class
+                const affectedStudents = this.data.getActiveStudents().filter(s => 
+                    s.class === classFees.class && 
+                    s.term === classFees.term && 
+                    s.year === classFees.year
+                );
+                
+                affectedStudents.forEach(student => {
+                    this.data.updateStudent(student.id, {
+                        dailyFee: classFees.dailyFee
+                    });
+                });
+                
+                if (affectedStudents.length > 0) {
+                    toastr.info(`Updated daily fee for ${affectedStudents.length} student(s) in ${classFees.class}`);
+                }
+            }
+
+            loadFeesTable() {
+                const table = document.getElementById('feesTable');
+                
+                if (this.data.fees.length === 0) {
+                    table.innerHTML = '<tr><td colspan="8" class="text-center">No fees configured yet</td></tr>';
                     return;
                 }
                 
-                const headers = ['Receipt No', 'Date', 'Time', 'Student ID', 'Student Name', 'Class', 
-                               'Amount', 'Method', 'Receiver', 'Balance Before', 'Balance After', 'Notes'];
-                const data = this.data.payments.map(p => [
-                    p.receiptNo,
-                    p.date,
-                    p.time,
-                    p.studentId,
-                    p.studentName,
-                    p.class,
-                    p.amount.toFixed(2),
-                    p.method,
-                    p.receiver,
-                    p.balanceBefore.toFixed(2),
-                    p.balanceAfter.toFixed(2),
-                    p.notes || ''
-                ]);
-                
-                this.exportToCSV('receipts', headers, data);
+                table.innerHTML = this.data.fees.map(fee => {
+                    const totalDays = fee.termFee > 0 ? Math.round(fee.termFee / fee.dailyFee) : 0;
+                    return `
+                        <tr>
+                            <td>${fee.class}</td>
+                            <td>${fee.term}</td>
+                            <td>${fee.year}</td>
+                            <td>₵ ${fee.dailyFee.toFixed(2)}</td>
+                            <td>₵ ${fee.termFee.toFixed(2)}</td>
+                            <td>${totalDays} days</td>
+                            <td>${this.formatDate(fee.updatedAt)}</td>
+                            <td>
+                                <button class="btn btn-secondary btn-sm" onclick="app.editFees('${fee.class}', '${fee.term}', '${fee.year}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            editFees(className, term, year) {
+                document.getElementById('feeClass').value = className;
+                document.getElementById('feeTerm').value = term;
+                document.getElementById('feeYear').value = year;
+                this.loadClassFees();
+                document.getElementById('feeClass').scrollIntoView({ behavior: 'smooth' });
+            }
+
+            resetFeesForm() {
+                document.getElementById('feesForm').reset();
+                document.getElementById('currentFeesInfo').style.display = 'none';
+                document.getElementById('dailyFee').value = '5.00';
+                document.getElementById('termFee').value = '300.00';
             }
 
             // ============================================
@@ -4727,17 +4972,7 @@
                 const classFilter = document.getElementById('reportClass').value;
                 const termFilter = document.getElementById('reportTerm').value;
                 const yearFilter = document.getElementById('reportYear').value;
-                // SET INITIAL BALANCE TO TERM FEE (if fees are configured)
-    if (classFees) {
-        newStudent.balance = classFees.termFee;
-        newStudent.dailyFee = classFees.dailyFee;
-        newStudent.termFee = classFees.termFee;
-    } else {
-        // Default to 0 if no fees configured
-        newStudent.balance = 0;
-        newStudent.dailyFee = 0;
-        newStudent.termFee = 0;
-    }
+                
                 // Filter students
                 let filteredStudents = this.data.getActiveStudents();
                 if (classFilter !== 'all') {
@@ -4791,20 +5026,21 @@
                     if (!classSummary[student.class]) {
                         classSummary[student.class] = {
                             students: [],
-                            totalFee: 0,
+                            totalCharged: 0,
                             totalPaid: 0,
                             totalBalance: 0
                         };
                     }
                     classSummary[student.class].students.push(student);
                     
-                    const classFees = this.data.getFee(student.class, student.term, student.year);
-                    const termFee = classFees ? classFees.termFee : 0;
+                    const dailyFee = student.dailyFee || 0;
+                    const attendanceDays = student.attendanceDays || 0;
+                    const totalCharged = dailyFee * attendanceDays;
                     const studentPayments = filteredPayments.filter(p => p.studentId === student.id);
                     const paid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                    const balance = Math.max(0, termFee - paid);
+                    const balance = student.balance || 0;
                     
-                    classSummary[student.class].totalFee += termFee;
+                    classSummary[student.class].totalCharged += totalCharged;
                     classSummary[student.class].totalPaid += paid;
                     classSummary[student.class].totalBalance += balance;
                 });
@@ -4824,7 +5060,7 @@
                                     <tr>
                                         <th>Class</th>
                                         <th>Students</th>
-                                        <th>Total Term Fee</th>
+                                        <th>Total Charged</th>
                                         <th>Total Paid</th>
                                         <th>Total Balance</th>
                                         <th>Collection %</th>
@@ -4832,13 +5068,13 @@
                                 </thead>
                                 <tbody>
                                     ${Object.entries(classSummary).map(([className, data]) => {
-                                        const collectionPercent = data.totalFee > 0 ? 
-                                            (data.totalPaid / data.totalFee * 100).toFixed(1) : 0;
+                                        const collectionPercent = data.totalCharged > 0 ? 
+                                            (data.totalPaid / data.totalCharged * 100).toFixed(1) : 0;
                                         return `
                                             <tr>
                                                 <td>${className}</td>
                                                 <td>${data.students.length}</td>
-                                                <td>₵ ${data.totalFee.toFixed(2)}</td>
+                                                <td>₵ ${data.totalCharged.toFixed(2)}</td>
                                                 <td class="text-success">₵ ${data.totalPaid.toFixed(2)}</td>
                                                 <td class="${data.totalBalance === 0 ? 'text-success' : 'text-danger'}">
                                                     ₵ ${data.totalBalance.toFixed(2)}
@@ -4863,7 +5099,9 @@
                                         <th>Class</th>
                                         <th>Term</th>
                                         <th>Year</th>
-                                        <th>Term Fee</th>
+                                        <th>Daily Fee</th>
+                                        <th>Days</th>
+                                        <th>Charged</th>
                                         <th>Paid</th>
                                         <th>Balance</th>
                                         <th>Status</th>
@@ -4871,11 +5109,12 @@
                                 </thead>
                                 <tbody>
                                     ${filteredStudents.map(student => {
-                                        const classFees = this.data.getFee(student.class, student.term, student.year);
-                                        const termFee = classFees ? classFees.termFee : 0;
+                                        const dailyFee = student.dailyFee || 0;
+                                        const attendanceDays = student.attendanceDays || 0;
+                                        const totalCharged = dailyFee * attendanceDays;
                                         const studentPayments = filteredPayments.filter(p => p.studentId === student.id);
                                         const paid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                                        const balance = Math.max(0, termFee - paid);
+                                        const balance = student.balance || 0;
                                         const statusClass = balance === 0 ? 'paid' : 'partial';
                                         const statusText = balance === 0 ? 'Paid' : 'Partial';
                                         
@@ -4886,7 +5125,9 @@
                                                 <td>${student.class}</td>
                                                 <td>${student.term}</td>
                                                 <td>${student.year}</td>
-                                                <td>₵ ${termFee.toFixed(2)}</td>
+                                                <td>₵ ${dailyFee.toFixed(2)}</td>
+                                                <td>${attendanceDays}</td>
+                                                <td>₵ ${totalCharged.toFixed(2)}</td>
                                                 <td class="text-success">₵ ${paid.toFixed(2)}</td>
                                                 <td class="${balance === 0 ? 'text-success' : 'text-danger'}">
                                                     ₵ ${balance.toFixed(2)}
@@ -4949,54 +5190,6 @@
                 const btnIndex = tabName === 'summary' ? 1 : tabName === 'details' ? 2 : 3;
                 document.querySelector(`.report-tabs .tab-btn:nth-child(${btnIndex})`).classList.add('active');
                 document.getElementById(`report${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`).classList.add('active');
-            }
-
-            printReport() {
-                window.print();
-            }
-
-            exportReportPDF() {
-                toastr.info('PDF export requires backend integration or jsPDF library');
-            }
-
-            exportReportCSV() {
-                const startDate = document.getElementById('reportStartDate').value;
-                const endDate = document.getElementById('reportEndDate').value;
-                
-                if (!startDate || !endDate) {
-                    toastr.error('Please generate a report first');
-                    return;
-                }
-                
-                const filteredPayments = this.data.payments.filter(p => {
-                    const paymentDate = new Date(p.date);
-                    const start = new Date(startDate);
-                    const end = new Date(endDate);
-                    end.setHours(23, 59, 59, 999);
-                    return paymentDate >= start && paymentDate <= end;
-                });
-                
-                if (filteredPayments.length === 0) {
-                    toastr.warning('No payment data to export');
-                    return;
-                }
-                
-                const headers = ['Date', 'Receipt No', 'Student ID', 'Student Name', 'Class', 
-                               'Amount', 'Payment Method', 'Receiver', 'Balance Before', 'Balance After'];
-                const data = filteredPayments.map(p => [
-                    p.date,
-                    p.receiptNo,
-                    p.studentId,
-                    p.studentName,
-                    p.class,
-                    p.amount.toFixed(2),
-                    p.method,
-                    p.receiver,
-                    p.balanceBefore.toFixed(2),
-                    p.balanceAfter.toFixed(2)
-                ]);
-                
-                this.exportToCSV(`report_${startDate}_to_${endDate}`, headers, data);
             }
 
             // ============================================
@@ -5246,103 +5439,8 @@
                 }
             }
 
-            printDailySummary() {
-                window.print();
-            }
-
-            exportDailySummaryPDF() {
-                toastr.info('PDF export requires backend integration');
-            }
-
-            exportDailySummaryCSV() {
-                const date = document.getElementById('summaryDate').value || this.getTodayDate();
-                const dailyPayments = this.data.getDailyPayments(date);
-                
-                if (dailyPayments.length === 0) {
-                    toastr.warning('No payments to export for selected date');
-                    return;
-                }
-                
-                const headers = ['Date', 'Receipt No', 'Student Name', 'Class', 'Amount', 
-                               'Payment Method', 'Time', 'Receiver', 'Balance After'];
-                const data = dailyPayments.map(p => [
-                    p.date,
-                    p.receiptNo,
-                    p.studentName,
-                    p.class,
-                    p.amount.toFixed(2),
-                    p.method,
-                    p.time,
-                    p.receiver,
-                    p.balanceAfter.toFixed(2)
-                ]);
-                
-                this.exportToCSV(`daily_summary_${date}`, headers, data);
-            }
-
-            exportPaidStudentsCSV() {
-                const date = document.getElementById('summaryDate').value || this.getTodayDate();
-                const dailyPayments = this.data.getDailyPayments(date);
-                
-                if (dailyPayments.length === 0) {
-                    toastr.warning('No paid students to export');
-                    return;
-                }
-                
-                const headers = ['Student Name', 'Class', 'Amount Paid', 'Payment Method', 
-                               'Time', 'Receipt No', 'Balance'];
-                const data = dailyPayments.map(p => [
-                    p.studentName,
-                    p.class,
-                    p.amount.toFixed(2),
-                    p.method,
-                    p.time,
-                    p.receiptNo,
-                    p.balanceAfter.toFixed(2)
-                ]);
-                
-                this.exportToCSV(`paid_students_${date}`, headers, data);
-            }
-
-            sendDailyReport() {
-                const date = document.getElementById('summaryDate').value || this.getTodayDate();
-                const dailyPayments = this.data.getDailyPayments(date);
-                const dailyTotal = dailyPayments.reduce((sum, p) => sum + p.amount, 0);
-                
-                if (dailyPayments.length === 0) {
-                    toastr.warning('No payments to report for today');
-                    return;
-                }
-                
-                const report = `
-                    DAILY COLLECTION REPORT - ${date}
-                    =================================
-                    
-                    Total Collected: ₵${dailyTotal.toFixed(2)}
-                    Total Payments: ${dailyPayments.length}
-                    
-                    PAYMENT SUMMARY:
-                    ${dailyPayments.map(p => 
-                        `- ${p.studentName} (${p.class}): ₵${p.amount.toFixed(2)} via ${p.method} (Receipt: ${p.receiptNo})`
-                    ).join('\n')}
-                    
-                    Generated by HFPS Fees Collection System
-                    ${new Date().toLocaleString()}
-                `;
-                
-                const blob = new Blob([report], { type: 'text/plain' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `daily_report_${date}.txt`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                toastr.success('Daily report generated for download');
-            }
-
             // ============================================
-            // SYSTEM ADMIN - UPDATED
+            // SYSTEM ADMIN
             // ============================================
 
             loadSystemAdmin() {
@@ -5350,7 +5448,8 @@
                 document.getElementById('dataStats').innerHTML = `
                     Students: ${stats.totalStudents} | 
                     Fees: ${this.data.fees.length} | 
-                    Payments: ${stats.todayPayments}
+                    Payments: ${stats.todayPayments} |
+                    Attendance: ${this.data.attendanceLog.length} records
                 `;
                 
                 document.getElementById('storageStatus').textContent = 
@@ -5396,6 +5495,7 @@
                     students: this.data.students,
                     fees: this.data.fees,
                     payments: this.data.payments,
+                    attendanceLog: this.data.attendanceLog,
                     sheetsConfig: CONFIG.GOOGLE_SHEETS,
                     exportDate: new Date().toISOString(),
                     system: `${CONFIG.APP_NAME} v${CONFIG.VERSION}`
@@ -5426,6 +5526,7 @@
                             this.data.students = data.students || [];
                             this.data.fees = data.fees || [];
                             this.data.payments = data.payments || [];
+                            this.data.attendanceLog = data.attendanceLog || [];
                             
                             if (data.sheetsConfig) {
                                 localStorage.setItem('hfps_sheets_config', JSON.stringify(data.sheetsConfig));
@@ -5448,77 +5549,190 @@
                 event.target.value = '';
             }
 
-            // ============================================
-            // EXPORT/IMPORT IMPROVEMENTS
-            // ============================================
-
-            exportToExcel() {
-                try {
-                    // Create workbook
-                    const wb = XLSX.utils.book_new();
+            loadSampleData() {
+                if (confirm('Load sample data? This will add sample students, fees, and payments for testing.')) {
+                    // Sample fees
+                    const sampleFees = [
+                        { class: 'Crèche', term: 'Term 1', year: '2025/2026', dailyFee: 3.00, termFee: 180.00 },
+                        { class: 'Nursery 1', term: 'Term 1', year: '2025/2026', dailyFee: 3.50, termFee: 210.00 },
+                        { class: 'Nursery 2', term: 'Term 1', year: '2025/2026', dailyFee: 4.00, termFee: 240.00 },
+                        { class: 'Kindergarten 1', term: 'Term 1', year: '2025/2026', dailyFee: 4.50, termFee: 270.00 },
+                        { class: 'Kindergarten 2', term: 'Term 1', year: '2025/2026', dailyFee: 5.00, termFee: 300.00 },
+                        { class: 'Basic 1', term: 'Term 1', year: '2025/2026', dailyFee: 5.50, termFee: 330.00 },
+                        { class: 'Basic 2', term: 'Term 1', year: '2025/2026', dailyFee: 6.00, termFee: 360.00 }
+                    ];
                     
-                    // Students sheet
-                    const studentsData = this.data.students.map(s => [
-                        s.id, s.name, s.gender, s.class, s.term, s.year,
-                        s.parentPhone || '', s.balance, s.status, s.createdAt, s.updatedAt
-                    ]);
-                    const studentsWs = XLSX.utils.aoa_to_sheet([
-                        ['Student ID', 'Name', 'Gender', 'Class', 'Term', 'Year', 
-                         'Parent Phone', 'Balance', 'Status', 'Created At', 'Updated At'],
-                        ...studentsData
-                    ]);
-                    XLSX.utils.book_append_sheet(wb, studentsWs, 'Students');
+                    sampleFees.forEach(fee => {
+                        if (!this.data.getFee(fee.class, fee.term, fee.year)) {
+                            this.data.addFee(fee);
+                        }
+                    });
                     
-                    // Fees sheet
-                    const feesData = this.data.fees.map(f => [
-                        f.class, f.term, f.year, f.dailyFee, f.termFee, f.updatedAt, f.updatedBy
-                    ]);
-                    const feesWs = XLSX.utils.aoa_to_sheet([
-                        ['Class', 'Term', 'Year', 'Daily Fee', 'Term Fee', 'Last Updated', 'Updated By'],
-                        ...feesData
-                    ]);
-                    XLSX.utils.book_append_sheet(wb, feesWs, 'Fees');
+                    // Sample students
+                    const sampleStudents = [
+                        { name: 'Kwame Asare', gender: 'Male', class: 'Basic 1', term: 'Term 1', year: '2025/2026', parentPhone: '+233 24 123 4567' },
+                        { name: 'Ama Mensah', gender: 'Female', class: 'Basic 2', term: 'Term 1', year: '2025/2026', parentPhone: '+233 20 987 6543' },
+                        { name: 'Kofi Boateng', gender: 'Male', class: 'Kindergarten 2', term: 'Term 1', year: '2025/2026', parentPhone: '+233 54 321 0987' },
+                        { name: 'Esi Owusu', gender: 'Female', class: 'Nursery 1', term: 'Term 1', year: '2025/2026', parentPhone: '+233 27 456 7890' },
+                        { name: 'Yaw Agyemang', gender: 'Male', class: 'Crèche', term: 'Term 1', year: '2025/2026', parentPhone: '+233 50 111 2233' }
+                    ];
                     
-                    // Payments sheet
-                    const paymentsData = this.data.payments.map(p => [
-                        p.id, p.receiptNo, p.date, p.time, p.studentId, p.studentName, p.class,
-                        p.amount, p.method, p.receiver, p.balanceBefore, p.balanceAfter,
-                        p.notes || '', p.createdAt
-                    ]);
-                    const paymentsWs = XLSX.utils.aoa_to_sheet([
-                        ['ID', 'Receipt No', 'Date', 'Time', 'Student ID', 'Student Name', 'Class',
-                         'Amount', 'Method', 'Receiver', 'Balance Before', 'Balance After',
-                         'Notes', 'Created At'],
-                        ...paymentsData
-                    ]);
-                    XLSX.utils.book_append_sheet(wb, paymentsWs, 'Payments');
+                    sampleStudents.forEach(studentData => {
+                        const student = this.data.addStudent(studentData);
+                        
+                        // Mark some attendance for sample
+                        const today = new Date();
+                        for (let i = 0; i < 5; i++) {
+                            const date = new Date(today);
+                            date.setDate(date.getDate() - i);
+                            const dateStr = date.toISOString().split('T')[0];
+                            this.data.markAttendance(student.id, dateStr);
+                        }
+                        
+                        // Add sample payment for some students
+                        if (student.name.includes('Kwame') || student.name.includes('Ama')) {
+                            const payment = {
+                                date: this.getTodayDate(),
+                                time: '09:30 AM',
+                                studentId: student.id,
+                                studentName: student.name,
+                                class: student.class,
+                                amount: 50.00,
+                                method: 'Cash',
+                                receiver: 'Administrator',
+                                balanceBefore: student.balance,
+                                balanceAfter: Math.max(0, student.balance - 50),
+                                notes: 'Sample payment'
+                            };
+                            this.data.addPayment(payment);
+                            this.data.updateStudent(student.id, { balance: payment.balanceAfter });
+                        }
+                    });
                     
-                    // Generate and download
-                    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-                    saveAs(blob, `hfps_data_${new Date().toISOString().split('T')[0]}.xlsx`);
-                    
-                    toastr.success('Data exported to Excel successfully');
-                } catch (error) {
-                    console.error('Excel export error:', error);
-                    toastr.error('Failed to export to Excel');
+                    toastr.success('Sample data loaded successfully');
+                    this.updateDashboard();
+                    this.loadPage(this.currentPage);
                 }
             }
 
             // ============================================
-            // HELPER FUNCTIONS
+            // GOOGLE SHEETS CONFIGURATION
             // ============================================
 
-            debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
+            async testSheetsConnection() {
+                const apiKey = document.getElementById('sheetsApiKey').value.trim();
+                const sheetId = document.getElementById('sheetId').value.trim();
+                
+                if (!apiKey || !sheetId) {
+                    toastr.error('Please enter API Key and Sheet ID');
+                    return;
+                }
+                
+                const result = await this.data.googleSheets.testConnection(apiKey, sheetId);
+                const resultDiv = document.getElementById('sheetsTestResult');
+                
+                if (result.success) {
+                    resultDiv.innerHTML = `
+                        <div style="background: #e8f5e9; padding: 1rem; border-radius: 5px; border-left: 4px solid #4caf50;">
+                            <i class="fas fa-check-circle"></i> 
+                            <strong>Connection Successful!</strong>
+                            <p>${result.message}</p>
+                            <p>Google Sheets connection established successfully.</p>
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                    toastr.success('Connection to Google Sheets successful');
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: #ffebee; padding: 1rem; border-radius: 5px; border-left: 4px solid #f44336;">
+                            <i class="fas fa-times-circle"></i> 
+                            <strong>Connection Failed!</strong>
+                            <p>Unable to connect to Google Sheets. Please check:</p>
+                            <ol>
+                                <li>API Key is correct and enabled for Google Sheets API</li>
+                                <li>Sheet ID is correct</li>
+                                <li>Sheet is shared with "Anyone with the link can view"</li>
+                                <li>Your API key doesn't have restrictions blocking the request</li>
+                            </ol>
+                            <p><small>Error: ${result.error}</small></p>
+                        </div>
+                    `;
+                    resultDiv.style.display = 'block';
+                    toastr.error('Connection to Google Sheets failed');
+                }
+            }
+
+            saveSheetsConfig() {
+                const apiKey = document.getElementById('sheetsApiKey').value.trim();
+                const sheetId = document.getElementById('sheetId').value.trim();
+                
+                if (!apiKey || !sheetId) {
+                    toastr.error('Please enter API Key and Sheet ID');
+                    return;
+                }
+                
+                const sheetNames = {
+                    students: document.getElementById('studentsSheet').value || 'Students',
+                    fees: document.getElementById('feesSheet').value || 'Fees',
+                    payments: document.getElementById('paymentsSheet').value || 'Payments',
+                    receipts: document.getElementById('receiptsSheet').value || 'Receipts'
                 };
+                
+                const success = this.data.saveSheetsConfig(apiKey, sheetId, sheetNames);
+                
+                if (success) {
+                    toastr.success('Google Sheets configuration saved successfully');
+                    this.closeSheetsConfig();
+                    this.loadPage('system-admin');
+                } else {
+                    toastr.error('Failed to save Google Sheets configuration');
+                }
+            }
+
+            showSheetsConfig() {
+                // Load existing config if any
+                if (CONFIG.GOOGLE_SHEETS.apiKey) {
+                    document.getElementById('sheetsApiKey').value = CONFIG.GOOGLE_SHEETS.apiKey;
+                }
+                if (CONFIG.GOOGLE_SHEETS.sheetId) {
+                    document.getElementById('sheetId').value = CONFIG.GOOGLE_SHEETS.sheetId;
+                }
+                if (CONFIG.GOOGLE_SHEETS.sheets) {
+                    document.getElementById('studentsSheet').value = CONFIG.GOOGLE_SHEETS.sheets.students;
+                    document.getElementById('feesSheet').value = CONFIG.GOOGLE_SHEETS.sheets.fees;
+                    document.getElementById('paymentsSheet').value = CONFIG.GOOGLE_SHEETS.sheets.payments;
+                    document.getElementById('receiptsSheet').value = CONFIG.GOOGLE_SHEETS.sheets.receipts;
+                }
+                
+                document.getElementById('sheetsConfigModal').classList.add('active');
+            }
+
+            closeSheetsConfig() {
+                document.getElementById('sheetsConfigModal').classList.remove('active');
+                document.getElementById('sheetsTestResult').style.display = 'none';
+            }
+
+            // ============================================
+            // UTILITY FUNCTIONS
+            // ============================================
+
+            logout() {
+                if (confirm('Are you sure you want to logout?')) {
+                    this.data.saveToLocalStorage();
+                    toastr.success('Logged out successfully!');
+                }
+            }
+
+            sendReceiptSMS() {
+                if (!this.data.selectedStudent || !this.data.selectedStudent.parentPhone) {
+                    toastr.warning('No phone number available for this student');
+                    return;
+                }
+                
+                const lastPayment = this.data.payments[this.data.payments.length - 1];
+                if (confirm(`Send receipt SMS to ${this.data.selectedStudent.parentPhone}?`)) {
+                    toastr.success('SMS receipt sent successfully (simulated)');
+                }
             }
 
             getTodayDate() {
@@ -5537,89 +5751,16 @@
                 });
             }
 
-            amountToWords(num) {
-                const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-                const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-                const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-                
-                if (num === 0) return 'Zero Ghana Cedis Only';
-                
-                let words = '';
-                const whole = Math.floor(num);
-                const cents = Math.round((num - whole) * 100);
-                
-                if (whole > 0) {
-                    if (whole >= 1000) {
-                        const thousands = Math.floor(whole / 1000);
-                        words += ones[thousands] + ' Thousand ';
-                        const remainder = whole % 1000;
-                        if (remainder > 0) {
-                            words += this.amountToWords(remainder).replace(' Ghana Cedis Only', '');
-                        }
-                    } else if (whole >= 100) {
-                        words += ones[Math.floor(whole / 100)] + ' Hundred ';
-                        const remainder = whole % 100;
-                        if (remainder > 0) {
-                            words += this.amountToWords(remainder).replace(' Ghana Cedis Only', '');
-                        }
-                    } else if (whole >= 20) {
-                        words += tens[Math.floor(whole / 10)] + ' ';
-                        const remainder = whole % 10;
-                        if (remainder > 0) {
-                            words += ones[remainder] + ' ';
-                        }
-                    } else if (whole >= 10) {
-                        words += teens[whole - 10] + ' ';
-                    } else if (whole > 0) {
-                        words += ones[whole] + ' ';
-                    }
-                    
-                    words += 'Cedis';
-                }
-                
-                if (cents > 0) {
-                    if (words) words += ' and ';
-                    if (cents >= 20) {
-                        words += tens[Math.floor(cents / 10)] + ' ';
-                        const remainder = cents % 10;
-                        if (remainder > 0) {
-                            words += ones[remainder] + ' ';
-                        }
-                    } else if (cents >= 10) {
-                        words += teens[cents - 10] + ' ';
-                    } else if (cents > 0) {
-                        words += ones[cents] + ' ';
-                    }
-                    words += 'Pesewas';
-                }
-                
-                return words.trim() + ' Only';
-            }
-
-            
-            // ============================================
-            // UTILITY FUNCTIONS
-            // ============================================
-
-            logout() {
-                if (confirm('Are you sure you want to logout?')) {
-                    this.data.saveToLocalStorage();
-                    toastr.success('Logged out successfully!');
-                    // In a real app, redirect to login page
-                    // window.location.href = 'login.html';
-                }
-            }
-
-            sendReceiptSMS() {
-                if (!this.data.selectedStudent || !this.data.selectedStudent.parentPhone) {
-                    toastr.warning('No phone number available for this student');
-                    return;
-                }
-                
-                const lastPayment = this.data.payments[this.data.payments.length - 1];
-                if (confirm(`Send receipt SMS to ${this.data.selectedStudent.parentPhone}?`)) {
-                    toastr.success('SMS receipt sent successfully (simulated)');
-                }
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
             }
 
             showModal(title, content, buttons = []) {
@@ -5660,346 +5801,6 @@
                 }
             }
 
-            generateA4Receipt(payment) {
-                const student = this.data.getStudent(payment.studentId) || this.data.selectedStudent;
-                const classFees = this.data.getFee(student.class, student.term, student.year);
-                const termTotal = classFees ? classFees.termFee : 0;
-                const studentPayments = this.data.getStudentPayments(student.id);
-                const paidSoFar = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                
-                const receiptHTML = `
-                    <div class="receipt-a4">
-                        <div class="receipt-header">
-                            <div class="receipt-school-name">HOME FIELD PREPARATORY SCHOOL</div>
-                            <div style="font-size: 11pt; margin: 5px 0;">Learners Today, Leaders Tomorrow</div>
-                            <div style="font-size: 10pt; margin: 5px 0;">24 HILLS, BEHIND ASSEMBLIES OF GOD CHURCH | Tel: 024 354 8843	</div>
-                            
-                            <div class="receipt-title">OFFICIAL FEE PAYMENT RECEIPT</div>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; margin: 20px 0;">
-                            <div>
-                                <strong>Receipt No:</strong> ${payment.receiptNo}<br>
-                                <strong>Date:</strong> ${payment.date}<br>
-                                <strong>Time:</strong> ${payment.time}
-                            </div>
-                            <div style="text-align: right;">
-                                <strong>Student ID:</strong> ${student.id}<br>
-                                <strong>Academic Year:</strong> ${student.year}<br>
-                                <strong>Term:</strong> ${student.term}
-                            </div>
-                        </div>
-                        
-                        <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <div>
-                                    <strong>Student Name:</strong> ${student.name}<br>
-                                    <strong>Class:</strong> ${student.class}<br>
-                                    <strong>Gender:</strong> ${student.gender}
-                                </div>
-                                <div style="text-align: right;">
-                                    <strong>Parent/Guardian:</strong><br>
-                                    ${student.parentPhone ? `Phone: ${student.parentPhone}` : 'N/A'}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <table class="receipt-details">
-                            <thead>
-                                <tr>
-                                    <th style="width: 70%;">Description</th>
-                                    <th style="width: 30%; text-align: right;">Amount (₵)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>School Fees - ${student.class} (${student.term} ${student.year})</td>
-                                    <td style="text-align: right;">${termTotal.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Amount Previously Paid</td>
-                                    <td style="text-align: right;">${(paidSoFar - payment.amount).toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Current Payment Received</strong></td>
-                                    <td style="text-align: right; font-weight: bold;">${payment.amount.toFixed(2)}</td>
-                                </tr>
-                                <tr style="background: #f5f5f5;">
-                                    <td><strong>TOTAL PAID TO DATE</strong></td>
-                                    <td style="text-align: right; font-weight: bold;">${paidSoFar.toFixed(2)}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>BALANCE OUTSTANDING</strong></td>
-                                    <td style="text-align: right; font-weight: bold; ${payment.balanceAfter === 0 ? 'color: green;' : 'color: red;'}">
-                                        ${payment.balanceAfter.toFixed(2)}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        
-                        <div style="margin: 20px 0;">
-                            <strong>Payment Details:</strong><br>
-                            <div style="margin-left: 20px; margin-top: 5px;">
-                                <strong>Method:</strong> ${payment.method}<br>
-                                ${payment.momoNumber ? `<strong>MoMo Number:</strong> ${payment.momoNumber}<br>` : ''}
-                                ${payment.bankReference ? `<strong>Bank Reference:</strong> ${payment.bankReference}<br>` : ''}
-                                <strong>Received By:</strong> ${payment.receiver}<br>
-                                ${payment.notes ? `<strong>Notes:</strong> ${payment.notes}<br>` : ''}
-                            </div>
-                        </div>
-                        
-                        <div class="amount-in-words">
-                            <strong>Amount in Words:</strong> ${this.amountToWords(payment.amount)}
-                        </div>
-                        
-                        <div style="margin: 30px 0; padding: 20px; border: 2px solid #000; border-radius: 5px; text-align: center;">
-                            <div style="font-size: 14pt; font-weight: bold; margin-bottom: 10px;">AMOUNT RECEIVED</div>
-                            <div style="font-size: 20pt; font-weight: bold; color: #000;">GHANA CEDIS ₵${payment.amount.toFixed(2)}</div>
-                        </div>
-                        
-                        <div class="receipt-footer">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
-                                <div class="receipt-signature">
-                                    <div class="signature-line"></div>
-                                    <div style="margin-top: 5px;">Student/Parent Signature</div>
-                                </div>
-                                <div class="receipt-signature">
-                                    <div class="signature-line"></div>
-                                    <div style="margin-top: 5px;">School Bursar Signature</div>
-                                </div>
-                            </div>
-                            
-                            <div style="text-align: center; font-size: 9pt; color: #666;">
-                                <div style="border-top: 1px solid #666; padding-top: 10px; margin-top: 20px;">
-                                    <strong>IMPORTANT NOTICE:</strong><br>
-                                    Please keep this receipt for reference. All payments are non-refundable.<br>
-                                    For any queries, contact the school administration during working hours.
-                                </div>
-                                <div style="margin-top: 10px;">
-                                    Receipt generated on: ${new Date().toLocaleString()}<br>
-                                    Computer Generated Receipt - Valid without school stamp
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('receiptForPrint').innerHTML = receiptHTML;
-            }
-
-            amountToWords(num) {
-                const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-                const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-                const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-                
-                if (num === 0) return 'Zero Ghana Cedis Only';
-                
-                let words = '';
-                const whole = Math.floor(num);
-                const cents = Math.round((num - whole) * 100);
-                
-                if (whole > 0) {
-                    if (whole >= 1000) {
-                        const thousands = Math.floor(whole / 1000);
-                        words += ones[thousands] + ' Thousand ';
-                        const remainder = whole % 1000;
-                        if (remainder > 0) {
-                            words += this.amountToWords(remainder).replace(' Ghana Cedis Only', '');
-                        }
-                    } else if (whole >= 100) {
-                        words += ones[Math.floor(whole / 100)] + ' Hundred ';
-                        const remainder = whole % 100;
-                        if (remainder > 0) {
-                            words += this.amountToWords(remainder).replace(' Ghana Cedis Only', '');
-                        }
-                    } else if (whole >= 20) {
-                        words += tens[Math.floor(whole / 10)] + ' ';
-                        const remainder = whole % 10;
-                        if (remainder > 0) {
-                            words += ones[remainder] + ' ';
-                        }
-                    } else if (whole >= 10) {
-                        words += teens[whole - 10] + ' ';
-                    } else if (whole > 0) {
-                        words += ones[whole] + ' ';
-                    }
-                    
-                    words += 'Cedis';
-                }
-                
-                if (cents > 0) {
-                    if (words) words += ' and ';
-                    if (cents >= 20) {
-                        words += tens[Math.floor(cents / 10)] + ' ';
-                        const remainder = cents % 10;
-                        if (remainder > 0) {
-                            words += ones[remainder] + ' ';
-                        }
-                    } else if (cents >= 10) {
-                        words += teens[cents - 10] + ' ';
-                    } else if (cents > 0) {
-                        words += ones[cents] + ' ';
-                    }
-                    words += 'Pesewas';
-                }
-                
-                return words.trim() + ' Only';
-            }
-
-            printStudentStatement(studentId) {
-                const student = this.data.getStudent(studentId);
-                if (!student) {
-                    toastr.error('Student not found');
-                    return;
-                }
-                
-                const studentPayments = this.data.getStudentPayments(studentId);
-                const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                const classFees = this.data.getFee(student.class, student.term, student.year);
-                const termFee = classFees ? classFees.termFee : 0;
-                
-                const statementHTML = `
-                    <div class="receipt-a4">
-                        <div class="receipt-header">
-                            <div class="receipt-school-name">HOME FIELD PREPARATORY SCHOOL</div>
-                            <div style="font-size: 11pt; margin: 5px 0;">Learners Today, Leaders Tomorrow</div>
-                            <div style="font-size: 10pt; margin: 5px 0;">24 HILLS, BEHIND ASSEMBLIES OF GOD CHURCH | Tel: 024 354 8843</div>
-                            <div class="receipt-title">STUDENT FEE STATEMENT</div>
-                        </div>
-                        
-                        <div style="display: flex; justify-content: space-between; margin: 20px 0;">
-                            <div>
-                                <strong>Statement Date:</strong> ${this.getTodayDate()}<br>
-                                <strong>Student ID:</strong> ${student.id}<br>
-                                <strong>Academic Year:</strong> ${student.year}
-                            </div>
-                            <div style="text-align: right;">
-                                <strong>Class:</strong> ${student.class}<br>
-                                <strong>Term:</strong> ${student.term}<br>
-                                <strong>Status:</strong> ${student.status}
-                            </div>
-                        </div>
-                        
-                        <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-                            <div style="display: flex; justify-content: space-between;">
-                                <div>
-                                    <strong>Student Name:</strong> ${student.name}<br>
-                                    <strong>Gender:</strong> ${student.gender}<br>
-                                    <strong>Parent/Guardian:</strong> ${student.parentPhone || 'N/A'}
-                                </div>
-                                <div style="text-align: right;">
-                                    <strong>Term Fee:</strong> ₵${termFee.toFixed(2)}<br>
-                                    <strong>Total Paid:</strong> ₵${totalPaid.toFixed(2)}<br>
-                                    <strong>Balance:</strong> ₵${student.balance.toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <h3 style="margin: 20px 0;">Payment History</h3>
-                        ${studentPayments.length > 0 ? `
-                            <table class="receipt-details">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Receipt No.</th>
-                                        <th>Payment Method</th>
-                                        <th>Amount</th>
-                                        <th>Balance After</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${studentPayments.map(p => `
-                                        <tr>
-                                            <td>${p.date}</td>
-                                            <td>${p.receiptNo}</td>
-                                            <td>${p.method}</td>
-                                            <td>₵ ${p.amount.toFixed(2)}</td>
-                                            <td>₵ ${p.balanceAfter.toFixed(2)}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                                <tfoot>
-                                    <tr style="background: #f5f5f5;">
-                                        <td colspan="3" style="text-align: right; font-weight: bold;">Total Paid:</td>
-                                        <td colspan="2" style="font-weight: bold;">₵ ${totalPaid.toFixed(2)}</td>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        ` : '<p style="text-align: center; padding: 20px;">No payment history found</p>'}
-                        
-                        <div class="receipt-footer">
-                            <div style="text-align: center; font-size: 10pt; color: #666; margin-top: 30px;">
-                                <div style="border-top: 1px solid #666; padding-top: 10px;">
-                                    <strong>IMPORTANT:</strong> This is an official fee statement from Home Field Preparatory School.<br>
-                                    Please settle any outstanding balance promptly.
-                                </div>
-                                <div style="margin-top: 10px;">
-                                    Generated on: ${new Date().toLocaleString()}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Student Statement - ${student.name}</title>
-                        <style>
-                            @page { size: A4; margin: 20mm; }
-                            body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-                            .receipt-a4 { width: 210mm; min-height: 297mm; padding: 20mm; }
-                            .receipt-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px; }
-                            .receipt-school-name { font-size: 24pt; font-weight: bold; color: #1a237e; margin-bottom: 5px; }
-                            .receipt-title { font-size: 18pt; margin: 15px 0; text-transform: uppercase; }
-                            .receipt-details { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                            .receipt-details th, .receipt-details td { border: 1px solid #000; padding: 8px; text-align: left; }
-                            .receipt-details th { background-color: #f5f5f5; font-weight: bold; }
-                            @media print { body { padding: 0; margin: 0; } }
-                        </style>
-                    </head>
-                    <body>${statementHTML}</body>
-                    </html>
-                `);
-                printWindow.document.close();
-                printWindow.focus();
-                setTimeout(() => printWindow.print(), 500);
-            }
-
-            // ============================================
-            // HELPER FUNCTIONS
-            // ============================================
-
-            getTodayDate() {
-                return new Date().toISOString().split('T')[0];
-            }
-
-            formatDate(dateString) {
-                if (!dateString) return 'N/A';
-                const date = new Date(dateString);
-                return date.toLocaleDateString('en-GB', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-            }
-
-            debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            }
-
             exportToCSV(filename, headers, data) {
                 const csvContent = [
                     headers.join(','),
@@ -6032,51 +5833,6 @@
 
         // Make app globally available
         window.app = app;
-
-        // ============================================
-        // QUICK FIXES FOR COMMON GITHUB PAGES ISSUES
-        // ============================================
-
-        // Fix for GitHub Pages CORS issues
-        if (window.location.hostname.includes('github.io')) {
-            console.log('Running on GitHub Pages - applying CORS fixes');
-            
-            // Override fetch to use CORS proxy for Google Sheets
-            const originalFetch = window.fetch;
-            window.fetch = function(url, options) {
-                // Only proxy Google Sheets API calls
-                if (url.includes('sheets.googleapis.com')) {
-                    const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-                    console.log('Proxying request:', proxyUrl);
-                    return originalFetch(proxyUrl, options);
-                }
-                return originalFetch(url, options);
-            };
-        }
-
-        // Service Worker for offline support
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
-            });
-        }
-
-        // Cache static assets
-        const CACHE_NAME = 'hfps-fees-cache-v1';
-        const urlsToCache = [
-            './',
-            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-            'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css',
-            'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js',
-            'https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js'
-        ];
-
     </script>
 </body>
 </html>
-
-
-
-
